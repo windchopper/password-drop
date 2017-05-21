@@ -1,0 +1,8 @@
+.outer-container {
+    -fx-fill: transparent;
+    -fx-padding: 10;
+}
+
+.inner-container {
+    -fx-effect: DropShadow(gaussian, #000000, 5, 0, 1, 1);
+}
