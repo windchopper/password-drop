@@ -1,89 +1,74 @@
 package com.github.winchopper.pd.ui;
 
 import com.github.windchopper.common.util.Pipeliner;
-import javafx.geometry.BoundingBox;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
-import javafx.geometry.Rectangle2D;
+import javafx.geometry.Orientation;
 import javafx.scene.Parent;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Region;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.Rotate;
-import javafx.stage.Screen;
-import name.wind.common.fx.behavior.WindowMoveResizeBehavior;
-
-import java.util.Random;
-import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singleton;
 
 public class ContainerFactory {
 
-    private static final Color []backgroundColors = {
-        Color.BROWN,
-        Color.BLUEVIOLET,
-        Color.CADETBLUE,
-        Color.CHOCOLATE,
-        Color.CORNFLOWERBLUE,
-        Color.TEAL,
-        Color.TOMATO
-    };
-
-    public static Parent createSceneRoot(Supplier<Region> containerFactory) {
-        Random random = new Random();
-        Rotate rotate = new Rotate(0.1 * random.nextInt(25) *
-            (random.nextBoolean() ? +1 : -1));
-
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-
-        Bounds initialBounds = new BoundingBox(0, 0, screenBounds.getWidth(), screenBounds.getHeight());
-        Bounds rotatedBounds = rotate.transform(initialBounds);
-
+    public static Parent createSceneRoot() {
         return Pipeliner.of(BorderPane::new)
-            .add(outer -> outer::getStyleClass, asList("any", "outer-container"))
-            .set(outer -> outer::setBackground, new Background(
-                new BackgroundFill(
-                    Color.TRANSPARENT,
-                    null,
-                    null)))
-            .set(outer -> outer::setCenter, Pipeliner.of(containerFactory)
-                .add(inner -> inner::getStyleClass, asList("any", "inner-container"))
-                .accept(inner -> new WindowMoveResizeBehavior().apply(inner))
-                .add(inner -> inner::getTransforms, singleton(rotate))
-                .accept(inner -> BorderPane.setMargin(inner, new Insets(Math.max(rotatedBounds.getWidth() - initialBounds.getWidth(),
-                    rotatedBounds.getHeight() - initialBounds.getHeight()))))
-                .set(inner -> inner::setBackground, new Background(
-                    new BackgroundFill(
-                        backgroundColors[random.nextInt(backgroundColors.length)],
-                        null,
-                        null)))
-                .get())
+//            .set(root -> root::setBackground, new Background(new BackgroundFill(Color.TRANSPARENT, null, null)))
+            .set(root -> root::setTop, createSceneRootMenuBar())
+            .set(root -> root::setCenter, createPasswordTree())
+            .get();
+    }
+
+    public static MenuBar createSceneRootMenuBar() {
+        return Pipeliner.of(MenuBar::new)
+//            .set(menuBar -> menuBar::setBackground, new Background(new BackgroundFill(Color.TRANSPARENT, null, null)))
+            .add(menuBar -> menuBar::getMenus, asList(
+                Pipeliner.of(Menu::new)
+                    .set(menu -> menu::setText, "File")
+                    .add(menu -> menu::getItems, asList(
+                        Pipeliner.of(MenuItem::new)
+                            .set(menuItem -> menuItem::setText, "Open...")
+                            .get(),
+                        Pipeliner.of(MenuItem::new)
+                            .set(menuItem -> menuItem::setText, "Reload")
+                            .get(),
+                        Pipeliner.of(SeparatorMenuItem::new)
+                            .get(),
+                        Pipeliner.of(MenuItem::new)
+                            .set(menuItem -> menuItem::setText, "Exit")
+                            .get()
+                    ))
+                    .get(),
+                Pipeliner.of(Menu::new)
+                    .set(menu -> menu::setText, "Security")
+                    .add(menu -> menu::getItems, asList(
+                        Pipeliner.of(MenuItem::new)
+                            .set(menuItem -> menuItem::setText, "Encrypt")
+                            .get(),
+                        Pipeliner.of(MenuItem::new)
+                            .set(menuItem -> menuItem::setText, "Decrypt")
+                            .get()
+                    ))
+                    .get()
+            ))
             .get();
     }
 
     public static Region createPasswordTree() {
-        return Pipeliner.of(BorderPane::new)
-            .set(pane -> pane::setPadding, new Insets(20, 10, 20, 10))
-            .add(pane -> pane::getStyleClass, asList("any"))
-            .set(pane -> pane::setCenter, Pipeliner.of(TreeView<String>::new)
-                .accept(tree -> {
-                    TreeItem<String> word = new TreeItem<>("word");
+        return Pipeliner.of(TreeView<String>::new)
+            .accept(tree -> {
 
-                    TreeItem<String> page = new TreeItem<>("page");
-                    page.getChildren().add(word);
+                TreeItem<String> word = new TreeItem<>("word");
 
-                    TreeItem<String> root = new TreeItem<>("root");
-                    root.getChildren().add(page);
+                TreeItem<String> page = new TreeItem<>("page");
+                page.getChildren().add(word);
 
-                    tree.setRoot(root);
-                })
-                .get())
+                TreeItem<String> root = new TreeItem<>("root");
+                root.getChildren().add(page);
+
+                tree.setRoot(root);
+            })
             .get();
     }
 
