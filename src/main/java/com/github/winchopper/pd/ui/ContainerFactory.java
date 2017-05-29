@@ -84,6 +84,8 @@ public class ContainerFactory {
                 .accept(tree -> {
                     TreeItem<String> word = new TreeItem<>("word");
 
+                    tree.setCursor(Cursor.DEFAULT);
+
                     TreeItem<String> page = new TreeItem<>("page");
                     page.getChildren().add(word);
 
