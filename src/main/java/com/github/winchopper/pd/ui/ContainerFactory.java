@@ -1,18 +1,14 @@
 package com.github.winchopper.pd.ui;
 
 import com.github.windchopper.common.util.Pipeliner;
-import javafx.geometry.BoundingBox;
-import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
-import javafx.geometry.Rectangle2D;
+import javafx.geometry.*;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Region;
+import javafx.scene.effect.Glow;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Screen;
@@ -76,25 +72,39 @@ public class ContainerFactory {
     }
 
     public static Region createPasswordTree() {
-        return Pipeliner.of(BorderPane::new)
-            .set(pane -> pane::setPadding, new Insets(20, 10, 20, 10))
+        return Pipeliner.of(GridPane::new)
+            .set(pane -> pane::setPadding, new Insets(0))
             .add(pane -> pane::getStyleClass, asList("any"))
-            .set(pane -> pane::setBackground, new Background(new BackgroundFill(mainColor.brighter(), null, null)))
-            .set(pane -> pane::setCenter, Pipeliner.of(TreeView<String>::new)
-                .accept(tree -> {
-                    TreeItem<String> word = new TreeItem<>("word");
-
-                    tree.setCursor(Cursor.DEFAULT);
-
-                    TreeItem<String> page = new TreeItem<>("page");
-                    page.getChildren().add(word);
-
-                    TreeItem<String> root = new TreeItem<>("root");
-                    root.getChildren().add(page);
-
-                    tree.setRoot(root);
-                })
-                .get())
+            .set(pane -> pane::setBackground, new Background(
+                new BackgroundFill(
+                    mainColor.brighter(),
+                    null,
+                    null)))
+            .add(pane -> pane::getChildren, asList(
+                Pipeliner.of(Button::new)
+                    .accept(button -> GridPane.setConstraints(button, 1, 0, 1, 1, HPos.RIGHT, VPos.TOP, Priority.ALWAYS, Priority.NEVER, new Insets(0, 5, 0, 5)))
+                    .set(button -> button::setText, "x")
+                    .set(button -> button::setBackground, new Background(
+                        new BackgroundFill(
+                            Color.RED,
+                            null,
+                            null)))
+                    .set(button -> button::setOnAction, actionEvent -> System.exit(0))
+                    .set(button -> button::setOnMouseEntered, mouseEvent -> ((Button) mouseEvent.getSource()).setEffect(new Glow()))
+                    .set(button -> button::setOnMouseExited, mouseEvent -> ((Button) mouseEvent.getSource()).setEffect(null))
+                    .get(),
+                Pipeliner.of(TreeView<String>::new)
+                    .accept(tree -> GridPane.setConstraints(tree, 0, 1, 2, 1, HPos.CENTER, VPos.CENTER, Priority.ALWAYS, Priority.ALWAYS, new Insets(5, 5, 5, 5)))
+                    .accept(tree -> {
+                        tree.setCursor(Cursor.DEFAULT);
+                        TreeItem<String> word = new TreeItem<>("word");
+                        TreeItem<String> page = new TreeItem<>("page");
+                        page.getChildren().add(word);
+                        TreeItem<String> root = new TreeItem<>("root");
+                        root.getChildren().add(page);
+                        tree.setRoot(root);
+                    })
+                    .get()))
             .get();
     }
 
