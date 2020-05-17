@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.geometry.Insets?>
+
+<?import javafx.scene.control.TreeView?>
+<?import java.lang.String?>
+<?import javafx.scene.layout.Background?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.layout.BackgroundFill?>
+<?import javafx.scene.layout.CornerRadii?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.control.ToolBar?>
+
+<?import javafx.scene.control.Label?>
+
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Button?>
+<BorderPane fx:id="outerContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="100.0" xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.windchopper.tools.password.drop.ui.MainStageController">
+    <fx:define>
+        <Background fx:id="transparentBackground">
+            <fills>
+                <BackgroundFill>
+                    <fill>
+                        <Color fx:constant="TRANSPARENT"/>
+                    </fill>
+                    <radii>
+                        <CornerRadii fx:constant="EMPTY"/>
+                    </radii>
+                    <insets>
+                        <Insets fx:constant="EMPTY"/>
+                    </insets>
+                </BackgroundFill>
+            </fills>
+        </Background>
+    </fx:define>
+    <styleClass>
+        <String fx:value="any"/>
+        <String fx:value="outer-container"/>
+    </styleClass>
+    <background>
+        <fx:reference source="transparentBackground"/>
+    </background>
+    <center>
+        <BorderPane fx:id="innerContainer">
+            <styleClass>
+                <String fx:value="any"/>
+                <String fx:value="inner-container"/>
+            </styleClass>
+            <padding>
+                <Insets top="5" left="5" bottom="5" right="5"/>
+            </padding>
+            <top>
+                <Label text="%main.title">
+                    <styleClass>
+                        <String fx:value="any"/>
+                    </styleClass>
+                    <padding>
+                        <Insets bottom="2"/>
+                    </padding>
+                    <textFill>
+                        <Color fx:constant="WHITE"/>
+                    </textFill>
+                </Label>
+            </top>
+            <center>
+                <TreeView fx:id="bookView" BorderPane.alignment="CENTER">
+                    <styleClass>
+                        <String fx:value="any"/>
+                    </styleClass>
+                    <cursor>
+                        <Cursor fx:constant="DEFAULT"/>
+                    </cursor>
+                </TreeView>
+            </center>
+        </BorderPane>
+    </center>
+</BorderPane>
