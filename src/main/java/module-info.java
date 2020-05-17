@@ -1,6 +1,7 @@
 module windchopper.tools.password.drop {
 
     opens com.github.windchopper.tools.password.drop;
+    opens com.github.windchopper.tools.password.drop.book;
     opens com.github.windchopper.tools.password.drop.crypto;
     opens com.github.windchopper.tools.password.drop.i18n;
     opens com.github.windchopper.tools.password.drop.images;
@@ -11,6 +12,7 @@ module windchopper.tools.password.drop {
 
     requires kotlinx.coroutines.core;
 
+    requires java.desktop;
     requires java.prefs;
     requires java.logging;
 

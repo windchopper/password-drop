@@ -16,6 +16,10 @@
 
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <BorderPane fx:id="outerContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="100.0" xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.windchopper.tools.password.drop.ui.MainStageController">
     <fx:define>
@@ -52,23 +56,29 @@
                 <Insets top="5" left="5" bottom="5" right="5"/>
             </padding>
             <top>
-                <Label text="%main.title">
-                    <styleClass>
-                        <String fx:value="any"/>
-                    </styleClass>
+                <GridPane>
                     <padding>
-                        <Insets bottom="2"/>
+                        <Insets bottom="5"/>
                     </padding>
-                    <textFill>
-                        <Color fx:constant="WHITE"/>
-                    </textFill>
-                </Label>
+                    <Label text="%main.title" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS">
+                        <styleClass>
+                            <String fx:value="any"/>
+                        </styleClass>
+                        <textFill>
+                            <Color fx:constant="WHITE"/>
+                        </textFill>
+                    </Label>
+                    <Button text="%main.hide" onAction="#hide" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
+                        <graphic>
+                            <ImageView>
+                                <Image url="@/com/github/windchopper/tools/password/drop/images/window_delete_16.png"/>
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                </GridPane>
             </top>
             <center>
                 <TreeView fx:id="bookView" BorderPane.alignment="CENTER">
-                    <styleClass>
-                        <String fx:value="any"/>
-                    </styleClass>
                     <cursor>
                         <Cursor fx:constant="DEFAULT"/>
                     </cursor>

@@ -12,13 +12,3 @@
     -fx-background-color: #6495ed;
     -fx-effect: DropShadow(gaussian, #000000, 5, 0, 1, 1);
 }
-
-.tree-view {
-    -fx-background-color: #6ca0ff;
-    -fx-border-color: #ffffff;
-}
-
-.tree-view .tree-cell {
-    -fx-text-fill: #ffffff;
-    -fx-background-color: transparent;
-}
