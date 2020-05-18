@@ -12,6 +12,7 @@
         <kotlin.compiler.apiVersion>1.3</kotlin.compiler.apiVersion>
         <kotlin.compiler.languageVersion>1.3</kotlin.compiler.languageVersion>
         <kotlin.ext.version>1.3.2</kotlin.ext.version>
+        <common.version>1.1</common.version>
         <jaxb.version>2.3.1</jaxb.version>
     </properties>
     <dependencies>
@@ -86,27 +87,27 @@
         <dependency>
             <groupId>com.github.windchopper</groupId>
             <artifactId>common-fx</artifactId>
-            <version>1.1</version>
+            <version>${common.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.windchopper</groupId>
             <artifactId>common-fx-cdi</artifactId>
-            <version>1.1</version>
+            <version>${common.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.windchopper</groupId>
             <artifactId>common-cdi</artifactId>
-            <version>1.1</version>
+            <version>${common.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.windchopper</groupId>
             <artifactId>common-preferences</artifactId>
-            <version>1.1</version>
+            <version>${common.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.windchopper</groupId>
             <artifactId>common-util</artifactId>
-            <version>1.1</version>
+            <version>${common.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
