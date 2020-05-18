@@ -11,7 +11,8 @@ import javax.xml.bind.JAXBContext
 
     fun readBook(bookPath: Path): Book {
         Files.newBufferedReader(bookPath).use {
-            return bindingContext.createUnmarshaller().unmarshal(it) as Book
+            return (bindingContext.createUnmarshaller().unmarshal(it) as Book)
+                .also { it.fileAttached = true }
         }
     }
 

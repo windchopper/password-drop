@@ -43,6 +43,7 @@ class Application: javafx.application.Application() {
         private val preferencesStorage: PreferencesStorage = PlatformPreferencesStorage(Preferences.userRoot().node("com/github/windchopper/tools/password/drop"))
 
         val openBookPath = PreferencesEntry<Path>(preferencesStorage, "openBookPath", FlatType(Function { Paths.get(it) }, Function { it.toString() }), defaultBufferLifetime)
+        val stayOnTop = PreferencesEntry<Boolean>(preferencesStorage, "stayOnTop", FlatType(Function { it?.toBoolean()?:false }, Function { it.toString() }), defaultBufferLifetime)
 
     }
 
@@ -68,4 +69,22 @@ class Application: javafx.application.Application() {
         weld.shutdown()
     }
 
+}
+
+fun <T> T.display(stageController: AnyStageController) where T: Throwable = Platform.runLater {
+    stageController.prepareAlert(AlertType.ERROR, message)
+        .show()
+}
+
+fun AnyStageController.exceptionally(runnable: () -> Unit) = try {
+    runnable.invoke()
+} catch (thrown: Exception) {
+    thrown.display(this)
+}
+
+fun <T> AnyStageController.exceptionally(supplier: () -> T, defaultSupplier: () -> T): T = try {
+    supplier.invoke()
+} catch (thrown: Exception) {
+    thrown.display(this)
+    defaultSupplier.invoke()
 }

@@ -1,89 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.BorderPane?>
+
 <?import javafx.geometry.Insets?>
-
-<?import javafx.scene.control.TreeView?>
-<?import java.lang.String?>
-<?import javafx.scene.layout.Background?>
-<?import javafx.scene.Cursor?>
-<?import javafx.scene.layout.BackgroundFill?>
-<?import javafx.scene.layout.CornerRadii?>
-<?import javafx.scene.paint.Color?>
-<?import javafx.scene.control.ToolBar?>
-
-<?import javafx.scene.control.Label?>
-
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<BorderPane fx:id="outerContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="100.0" xmlns="http://javafx.com/javafx/8"
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="100.0" xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.windchopper.tools.password.drop.ui.MainStageController">
-    <fx:define>
-        <Background fx:id="transparentBackground">
-            <fills>
-                <BackgroundFill>
-                    <fill>
-                        <Color fx:constant="TRANSPARENT"/>
-                    </fill>
-                    <radii>
-                        <CornerRadii fx:constant="EMPTY"/>
-                    </radii>
-                    <insets>
-                        <Insets fx:constant="EMPTY"/>
-                    </insets>
-                </BackgroundFill>
-            </fills>
-        </Background>
-    </fx:define>
-    <styleClass>
-        <String fx:value="any"/>
-        <String fx:value="outer-container"/>
-    </styleClass>
-    <background>
-        <fx:reference source="transparentBackground"/>
-    </background>
+    <padding>
+        <Insets topRightBottomLeft="4"/>
+    </padding>
     <center>
-        <BorderPane fx:id="innerContainer">
-            <styleClass>
-                <String fx:value="any"/>
-                <String fx:value="inner-container"/>
-            </styleClass>
-            <padding>
-                <Insets top="5" left="5" bottom="5" right="5"/>
-            </padding>
-            <top>
-                <GridPane>
-                    <padding>
-                        <Insets bottom="5"/>
-                    </padding>
-                    <Label text="%main.title" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS">
-                        <styleClass>
-                            <String fx:value="any"/>
-                        </styleClass>
-                        <textFill>
-                            <Color fx:constant="WHITE"/>
-                        </textFill>
-                    </Label>
-                    <Button text="%main.hide" onAction="#hide" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
-                        <graphic>
-                            <ImageView>
-                                <Image url="@/com/github/windchopper/tools/password/drop/images/window_delete_16.png"/>
-                            </ImageView>
-                        </graphic>
-                    </Button>
-                </GridPane>
-            </top>
-            <center>
-                <TreeView fx:id="bookView" BorderPane.alignment="CENTER">
-                    <cursor>
-                        <Cursor fx:constant="DEFAULT"/>
-                    </cursor>
-                </TreeView>
-            </center>
-        </BorderPane>
+        <TreeView fx:id="bookView">
+            <contextMenu>
+                <ContextMenu>
+                    <items>
+                        <MenuItem fx:id="newPageMenuItem" text="%main.newPage" onAction="#newPage"/>
+                        <MenuItem fx:id="newParagraphMenuItem" text="%main.newParagraph" onAction="#newParagaph"/>
+                        <MenuItem fx:id="newPhraseMenuItem" text="%main.newPhrase" onAction="#newPhrase"/>
+                        <MenuItem fx:id="editMenuItem" text="%main.edit" onAction="#edit"/>
+                        <MenuItem fx:id="deleteMenuItem" text="%main.delete" onAction="#delete"/>
+                        <SeparatorMenuItem/>
+                        <MenuItem text="%main.open" onAction="#open"/>
+                        <MenuItem fx:id="reloadBookMenuItem" text="%main.reload" onAction="#reload"/>
+                        <MenuItem text="%main.save" onAction="#save"/>
+                        <SeparatorMenuItem/>
+                        <CheckMenuItem fx:id="stayOnTopMenuItem" text="%main.stayOnTop" onAction="#toggleStayOnTop"/>
+                        <SeparatorMenuItem/>
+                        <MenuItem text="%main.exit" onAction="#exit"/>
+                    </items>
+                </ContextMenu>
+            </contextMenu>
+        </TreeView>
     </center>
 </BorderPane>

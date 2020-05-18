@@ -46,14 +46,3 @@ abstract class AnyStageController: StageFormController() {
     }
 
 }
-
-fun <T> T.display(stageController: AnyStageController) where T: Throwable = Platform.runLater {
-    stageController.prepareAlert(AlertType.ERROR, message)
-        .show()
-}
-
-fun AnyStageController.exceptionally(runnable: () -> Unit) = try {
-    runnable.invoke()
-} catch (thrown: Exception) {
-    thrown.display(this)
-}

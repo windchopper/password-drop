@@ -23,11 +23,11 @@ open class BookPart {
 
 @XmlType @XmlAccessorType(XmlAccessType.FIELD) class Paragraph: BookPart() {
 
-    @XmlElement(name = "word") var words: MutableList<Word> = ArrayList()
+    @XmlElement(name = "word") var phrases: MutableList<Phrase> = ArrayList()
 
 }
 
-@XmlType @XmlAccessorType(XmlAccessType.FIELD) class Word: BookPart() {
+@XmlType @XmlAccessorType(XmlAccessType.FIELD) class Phrase: BookPart() {
 
     @XmlValue var text: String? = null
 
@@ -37,5 +37,6 @@ open class BookPart {
 
     @XmlAttribute(name = "salt") @XmlJavaTypeAdapter(EncryptSaltAdapter::class) var salt: EncryptSalt? = null
     @XmlElement(name = "page") var pages: MutableList<Page> = ArrayList()
+    @XmlTransient var fileAttached: Boolean = false
 
 }
