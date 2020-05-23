@@ -1,8 +1,9 @@
 package com.github.windchopper.tools.password.drop
 
 import com.github.windchopper.common.fx.cdi.ResourceBundleLoad
-import com.github.windchopper.common.fx.cdi.form.StageFormController
 import com.github.windchopper.common.fx.cdi.form.StageFormLoad
+import com.github.windchopper.common.fx.dialog.ExceptionDialog
+import com.github.windchopper.common.fx.dialog.ExceptionDialogModel
 import com.github.windchopper.common.preferences.PlatformPreferencesStorage
 import com.github.windchopper.common.preferences.PreferencesEntry
 import com.github.windchopper.common.preferences.PreferencesStorage
@@ -10,9 +11,6 @@ import com.github.windchopper.common.preferences.types.FlatType
 import com.github.windchopper.common.util.ClassPathResource
 import com.github.windchopper.tools.password.drop.ui.AnyStageController
 import javafx.application.Platform
-import javafx.scene.control.Alert
-import javafx.scene.control.Alert.AlertType
-import javafx.stage.Modality
 import javafx.stage.Stage
 import org.jboss.weld.environment.se.Weld
 import org.jboss.weld.environment.se.WeldContainer
@@ -23,7 +21,6 @@ import java.util.*
 import java.util.function.Function
 import java.util.function.Supplier
 import java.util.prefs.Preferences
-import javax.enterprise.inject.spi.CDI
 
 class Exit
 
@@ -72,7 +69,8 @@ class Application: javafx.application.Application() {
 }
 
 fun <T> T.display(stageController: AnyStageController) where T: Throwable = Platform.runLater {
-    stageController.prepareAlert(AlertType.ERROR, message)
+    ExceptionDialog(stageController.prepareModalDialogFrame(), ExceptionDialogModel()
+        .also { it.exception = this })
         .show()
 }
 

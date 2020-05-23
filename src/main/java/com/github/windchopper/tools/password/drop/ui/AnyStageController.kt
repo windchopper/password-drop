@@ -1,12 +1,9 @@
 package com.github.windchopper.tools.password.drop.ui
 
 import com.github.windchopper.common.fx.cdi.form.StageFormController
-
-import javafx.application.Platform
+import com.github.windchopper.common.fx.dialog.DialogFrame
+import com.github.windchopper.common.fx.dialog.StageDialogFrame
 import javafx.scene.Parent
-import javafx.scene.control.Alert
-import javafx.scene.control.Alert.AlertType
-import javafx.scene.control.ButtonType
 import javafx.scene.image.Image
 import javafx.stage.Modality
 import javafx.stage.Stage
@@ -26,23 +23,14 @@ abstract class AnyStageController: StageFormController() {
                 }
     }
 
-    open fun prepareAlert(type: AlertType, message: String? = null, vararg buttons: ButtonType): Alert {
-        return Alert(type, null, *buttons)
-            .let { alert ->
-                alert.initOwner(stage)
-                alert.initModality(Modality.APPLICATION_MODAL)
-
-                val alertWindow = alert.dialogPane.scene.window
-
-                if (alertWindow is Stage)
-                    alertWindow.icons.addAll(stage.icons)
-
-                message?.let {
-                    alert.headerText = message
-                }
-
-                alert
-            }
+    open fun prepareModalDialogFrame(): DialogFrame {
+        return StageDialogFrame(Stage()
+            .also {
+                it.initOwner(stage)
+                it.initModality(Modality.WINDOW_MODAL)
+                it.icons.addAll(stage.icons)
+                it.isResizable = false
+            })
     }
 
 }
