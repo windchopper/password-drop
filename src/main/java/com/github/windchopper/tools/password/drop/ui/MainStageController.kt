@@ -13,9 +13,15 @@ import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.geometry.Dimension2D
 import javafx.scene.Parent
+import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.image.Image
+import javafx.scene.image.WritableImage
+import javafx.scene.input.ClipboardContent
+import javafx.scene.input.DataFormat
+import javafx.scene.input.TransferMode
 import javafx.scene.paint.Color
+import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
 import javafx.stage.Screen
@@ -73,7 +79,34 @@ import kotlin.reflect.KClass
             }
         }
 
-        bookView.selectionModel.selectionMode = SelectionMode.SINGLE
+        with (bookView) {
+            selectionModel.selectionMode = SelectionMode.SINGLE
+
+            setOnDragDetected { event ->
+                selectionModel.selectedItem?.value
+                    ?.let { bookPart ->
+                        if (bookPart is Phrase) {
+                            val content = ClipboardContent()
+                            content[DataFormat.PLAIN_TEXT] = bookPart.text?:"blabla"
+
+                            val dragBoard = bookView.startDragAndDrop(TransferMode.COPY)
+                            dragBoard.setContent(content)
+
+                            val label = Label(bookPart.name)
+                            val textBounds = Text(bookPart.name)
+                                .let {
+                                    it.font = label.font
+                                    it.boundsInLocal
+                                }
+
+                            dragBoard.dragView = WritableImage(textBounds.width.toInt(), textBounds.height.toInt())
+                                .also { Scene(label).snapshot(it) }
+
+                            event.consume()
+                        }
+                    }
+            }
+        }
 
         addMenuItemBindings()
 
