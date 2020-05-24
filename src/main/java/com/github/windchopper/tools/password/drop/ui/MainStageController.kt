@@ -12,15 +12,21 @@ import javafx.beans.binding.BooleanBinding
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.geometry.Dimension2D
+import javafx.geometry.Insets
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.*
+import javafx.scene.effect.DropShadow
 import javafx.scene.image.Image
 import javafx.scene.image.WritableImage
 import javafx.scene.input.ClipboardContent
 import javafx.scene.input.DataFormat
 import javafx.scene.input.TransferMode
+import javafx.scene.layout.Background
+import javafx.scene.layout.BackgroundFill
+import javafx.scene.layout.CornerRadii
 import javafx.scene.paint.Color
+import javafx.scene.paint.Paint
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
@@ -87,12 +93,23 @@ import kotlin.reflect.KClass
                     ?.let { bookPart ->
                         if (bookPart is Phrase) {
                             val content = ClipboardContent()
-                            content[DataFormat.PLAIN_TEXT] = bookPart.text?:"blabla"
+                            content[DataFormat.PLAIN_TEXT] = bookPart.text?:""
 
                             val dragBoard = bookView.startDragAndDrop(TransferMode.COPY)
                             dragBoard.setContent(content)
 
+                            fun invertPaint(fill: Paint): Color = if (fill is Color) {
+                                fill.invert()
+                            } else {
+                                Color.WHITE
+                            }
+
                             val label = Label(bookPart.name)
+                                .also {
+                                    it.background = Background(BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY))
+                                    it.effect = DropShadow(3.0, invertPaint(it.textFill))
+                                }
+
                             val textBounds = Text(bookPart.name)
                                 .let {
                                     it.font = label.font
@@ -100,7 +117,9 @@ import kotlin.reflect.KClass
                                 }
 
                             dragBoard.dragView = WritableImage(textBounds.width.toInt(), textBounds.height.toInt())
-                                .also { Scene(label).snapshot(it) }
+                                .also { Scene(label)
+                                    .also { it.fill = Color.TRANSPARENT }
+                                    .snapshot(it) }
 
                             event.consume()
                         }
