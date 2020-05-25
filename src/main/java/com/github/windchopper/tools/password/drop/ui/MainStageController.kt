@@ -1,6 +1,9 @@
 package com.github.windchopper.tools.password.drop.ui
 
 import com.github.windchopper.common.fx.cdi.form.Form
+import com.github.windchopper.common.fx.cdi.form.FormLoad
+import com.github.windchopper.common.fx.cdi.form.StageFormLoad
+import com.github.windchopper.common.util.ClassPathResource
 import com.github.windchopper.tools.password.drop.Application
 import com.github.windchopper.tools.password.drop.Exit
 import com.github.windchopper.tools.password.drop.book.*
@@ -28,10 +31,8 @@ import javafx.scene.layout.CornerRadii
 import javafx.scene.paint.Color
 import javafx.scene.paint.Paint
 import javafx.scene.text.Text
-import javafx.stage.FileChooser
+import javafx.stage.*
 import javafx.stage.FileChooser.ExtensionFilter
-import javafx.stage.Screen
-import javafx.stage.StageStyle
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.awt.Font
@@ -42,6 +43,7 @@ import java.net.URL
 import java.nio.file.Paths
 import java.util.concurrent.Callable
 import javax.enterprise.context.ApplicationScoped
+import javax.enterprise.event.Event
 import javax.enterprise.event.Observes
 import javax.imageio.ImageIO
 import javax.inject.Inject
@@ -51,6 +53,7 @@ import kotlin.reflect.KClass
 @ApplicationScoped @Form(Application.FXML_MAIN) class MainStageController: AnyStageController() {
 
     @Inject protected lateinit var bookCase: BookCase
+    @Inject protected lateinit var formLoadEvent: Event<FormLoad>
 
     @FXML protected lateinit var bookView: TreeView<BookPart>
     @FXML protected lateinit var newPageMenuItem: MenuItem
@@ -259,7 +262,15 @@ import kotlin.reflect.KClass
     }
 
     @FXML fun edit(event: ActionEvent) {
-
+        formLoadEvent.fire(StageFormLoad(ClassPathResource(Application.FXML_EDIT), mutableMapOf("bookPart" to bookView.selectionModel.selectedItem.value)) {
+            Stage()
+                .also {
+                    it.initStyle(StageStyle.UTILITY)
+                    it.initModality(Modality.NONE)
+                    it.initOwner(stage)
+                    it.isResizable = false
+                }
+        })
     }
 
     @FXML fun delete(event: ActionEvent) {

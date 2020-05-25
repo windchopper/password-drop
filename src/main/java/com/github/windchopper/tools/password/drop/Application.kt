@@ -29,6 +29,7 @@ class Application: javafx.application.Application() {
     companion object {
 
         const val FXML_MAIN = "com/github/windchopper/tools/password/drop/main.fxml"
+        const val FXML_EDIT = "com/github/windchopper/tools/password/drop/edit.fxml"
 
         private val resourceBundle = ResourceBundle.getBundle("com.github.windchopper.tools.password.drop.i18n.messages")
 
