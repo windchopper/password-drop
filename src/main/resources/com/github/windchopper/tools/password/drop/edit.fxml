@@ -27,6 +27,6 @@
     <Label fx:id="textLabel" text="%edit.text" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.halignment="RIGHT" GridPane.margin="$defaultInsets"/>
     <TextField fx:id="textField" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1" GridPane.hgrow="ALWAYS" GridPane.margin="$defaultInsets"/>
     <HBox alignment="BASELINE_RIGHT" spacing="8.0" GridPane.columnIndex="0" GridPane.columnSpan="4" GridPane.rowIndex="2" GridPane.hgrow="ALWAYS" GridPane.margin="$defaultInsets">
-        <Button text="%edit.restore"/>
+        <Button fx:id="restoreButton" text="%edit.restore" onAction="#restore"/>
     </HBox>
 </GridPane>

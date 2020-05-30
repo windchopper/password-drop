@@ -7,15 +7,20 @@ import com.github.windchopper.common.util.ClassPathResource
 import com.github.windchopper.tools.password.drop.Application
 import com.github.windchopper.tools.password.drop.book.BookPart
 import com.github.windchopper.tools.password.drop.book.Phrase
+import javafx.beans.binding.Bindings
+import javafx.beans.property.adapter.JavaBeanStringPropertyBuilder
+import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.geometry.Dimension2D
 import javafx.scene.Parent
+import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.control.TextField
 import javafx.stage.Modality
 import javafx.stage.Screen
 import javafx.stage.Stage
 import javafx.stage.StageStyle
+import java.util.concurrent.Callable
 import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.event.Event
 import javax.enterprise.event.Observes
@@ -28,8 +33,10 @@ import javax.inject.Inject
     @FXML private lateinit var nameField: TextField
     @FXML private lateinit var textLabel: Label
     @FXML private lateinit var textField: TextField
+    @FXML private lateinit var restoreButton: Button
 
-    private var bookPart: BookPart? = null
+    private var savedName: String? = null
+    private var savedText: String? = null
 
     override fun preferredStageSize(): Dimension2D {
         return Screen.getPrimary().visualBounds
@@ -39,22 +46,39 @@ import javax.inject.Inject
     override fun afterLoad(form: Parent, parameters: MutableMap<String, *>, formNamespace: MutableMap<String, *>) {
         super.afterLoad(form, parameters, formNamespace)
 
-        bookPart = parameters["bookPart"] as BookPart
-        reinitialize()
+        bind(parameters["bookPart"] as BookPart)
+
+        restoreButton.disableProperty().bind(Bindings.createBooleanBinding(
+            Callable { savedName == nameField.text && savedText == textField.text },
+            nameField.textProperty(),
+            textField.textProperty()))
     }
 
-    fun reinitialize() {
-        (bookPart is Phrase)
-            .let { bookPartIsPhrase ->
-                textLabel.isVisible = bookPartIsPhrase
-                textField.isVisible = bookPartIsPhrase
+    fun unbind() {
+        nameField.textProperty().unbind()
+        textField.textProperty().unbind()
+    }
 
-                nameField.text = bookPart?.name
+    fun bind(bookPart: BookPart) {
+        textLabel.isVisible = false
+        textField.isVisible = false
 
-                if (bookPartIsPhrase) {
-                    textField.text = (bookPart as Phrase).text
-                }
-            }
+        with (JavaBeanStringPropertyBuilder.create().bean(bookPart).name("name").build()) {
+            nameField.textProperty().bindBidirectional(this)
+            savedName = get()
+        }
+
+        if (bookPart !is Phrase) {
+            return
+        }
+
+        textLabel.isVisible = true
+        textField.isVisible = true
+
+        with (JavaBeanStringPropertyBuilder.create().bean(bookPart).name("text").build()) {
+            textField.textProperty().bindBidirectional(this)
+            savedText = get()
+        }
     }
 
     fun editFired(@Observes event: TreeEdit<BookPart>) {
@@ -80,16 +104,19 @@ import javax.inject.Inject
     fun selectionFired(@Observes event: TreeSelection<BookPart>) {
         if (stage != null && stage.isShowing) {
             stage.toFront()
+            unbind()
             event.newSelection
-                ?.let {
-                    bookPart = it.value
-                    reinitialize()
-                }
+                ?.let { bind(it.value) }
         }
     }
 
     fun hideFired(@Observes event: TreeHide) {
         stage?.hide()
+    }
+
+    @FXML fun restore(event: ActionEvent) {
+        nameField.textProperty().set(savedName)
+        textField.textProperty().set(savedText)
     }
 
 }
