@@ -1,9 +1,6 @@
 package com.github.windchopper.tools.password.drop.ui
 
 import com.github.windchopper.common.fx.cdi.form.Form
-import com.github.windchopper.common.fx.cdi.form.FormLoad
-import com.github.windchopper.common.fx.cdi.form.StageFormLoad
-import com.github.windchopper.common.util.ClassPathResource
 import com.github.windchopper.tools.password.drop.Application
 import com.github.windchopper.tools.password.drop.Exit
 import com.github.windchopper.tools.password.drop.book.*
@@ -31,8 +28,10 @@ import javafx.scene.layout.CornerRadii
 import javafx.scene.paint.Color
 import javafx.scene.paint.Paint
 import javafx.scene.text.Text
-import javafx.stage.*
+import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
+import javafx.stage.Screen
+import javafx.stage.StageStyle
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.awt.Font
@@ -45,6 +44,7 @@ import java.util.concurrent.Callable
 import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.event.Event
 import javax.enterprise.event.Observes
+import javax.enterprise.inject.spi.BeanManager
 import javax.imageio.ImageIO
 import javax.inject.Inject
 import kotlin.math.abs
@@ -52,17 +52,19 @@ import kotlin.reflect.KClass
 
 @ApplicationScoped @Form(Application.FXML_MAIN) class MainStageController: AnyStageController() {
 
-    @Inject protected lateinit var bookCase: BookCase
-    @Inject protected lateinit var formLoadEvent: Event<FormLoad>
+    @Inject private lateinit var bookCase: BookCase
+    @Inject private lateinit var treeEditEvent: Event<TreeEdit<BookPart>>
+    @Inject private lateinit var treeSelectionEvent: Event<TreeSelection<BookPart>>
+    @Inject private lateinit var treeHideEvent: Event<TreeHide>
 
-    @FXML protected lateinit var bookView: TreeView<BookPart>
-    @FXML protected lateinit var newPageMenuItem: MenuItem
-    @FXML protected lateinit var newParagraphMenuItem: MenuItem
-    @FXML protected lateinit var newPhraseMenuItem: MenuItem
-    @FXML protected lateinit var editMenuItem: MenuItem
-    @FXML protected lateinit var deleteMenuItem: MenuItem
-    @FXML protected lateinit var stayOnTopMenuItem: CheckMenuItem
-    @FXML protected lateinit var reloadBookMenuItem: MenuItem
+    @FXML private lateinit var bookView: TreeView<BookPart>
+    @FXML private lateinit var newPageMenuItem: MenuItem
+    @FXML private lateinit var newParagraphMenuItem: MenuItem
+    @FXML private lateinit var newPhraseMenuItem: MenuItem
+    @FXML private lateinit var editMenuItem: MenuItem
+    @FXML private lateinit var deleteMenuItem: MenuItem
+    @FXML private lateinit var stayOnTopMenuItem: CheckMenuItem
+    @FXML private lateinit var reloadBookMenuItem: MenuItem
 
     private var trayIcon: TrayIcon? = null
     private var encryptEngine: EncryptEngine? = null
@@ -83,13 +85,22 @@ import kotlin.reflect.KClass
             isAlwaysOnTop = Application.stayOnTop.load()?:false
             stayOnTopMenuItem.isSelected = isAlwaysOnTop
 
+            setOnCloseRequest { event ->
+                treeHideEvent.fire(TreeHide())
+            }
+
             with (scene) {
                 fill = Color.TRANSPARENT
             }
         }
 
         with (bookView) {
-            selectionModel.selectionMode = SelectionMode.SINGLE
+            with (selectionModel) {
+                selectionMode = SelectionMode.SINGLE
+                selectedItemProperty().addListener { selectedItemProperty, oldSelection, newSelection ->
+                    treeSelectionEvent.fire(TreeSelection(oldSelection, newSelection))
+                }
+            }
 
             setOnDragDetected { event ->
                 selectionModel.selectedItem?.value
@@ -262,15 +273,7 @@ import kotlin.reflect.KClass
     }
 
     @FXML fun edit(event: ActionEvent) {
-        formLoadEvent.fire(StageFormLoad(ClassPathResource(Application.FXML_EDIT), mutableMapOf("bookPart" to bookView.selectionModel.selectedItem.value)) {
-            Stage()
-                .also {
-                    it.initStyle(StageStyle.UTILITY)
-                    it.initModality(Modality.NONE)
-                    it.initOwner(stage)
-                    it.isResizable = false
-                }
-        })
+        treeEditEvent.fire(TreeEdit(bookView.selectionModel.selectedItem))
     }
 
     @FXML fun delete(event: ActionEvent) {

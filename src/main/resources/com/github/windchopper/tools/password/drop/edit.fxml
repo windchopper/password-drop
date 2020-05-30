@@ -17,17 +17,16 @@
         <fx:reference source="defaultInsets"/>
     </padding>
     <columnConstraints>
-        <ColumnConstraints hgrow="ALWAYS"/>
-        <ColumnConstraints hgrow="ALWAYS"/>
-        <ColumnConstraints hgrow="ALWAYS"/>
-        <ColumnConstraints hgrow="ALWAYS"/>
+        <ColumnConstraints percentWidth="10.0"/>
+        <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0"/>
+        <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0"/>
+        <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0"/>
     </columnConstraints>
     <Label text="%edit.name" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.halignment="RIGHT" GridPane.margin="$defaultInsets"/>
-    <TextField minWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="0" GridPane.hgrow="ALWAYS" GridPane.margin="$defaultInsets"/>
+    <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="0" GridPane.hgrow="ALWAYS" GridPane.margin="$defaultInsets"/>
     <Label fx:id="textLabel" text="%edit.text" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.halignment="RIGHT" GridPane.margin="$defaultInsets"/>
-    <TextField fx:id="textField" minWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1" GridPane.hgrow="ALWAYS" GridPane.margin="$defaultInsets"/>
+    <TextField fx:id="textField" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1" GridPane.hgrow="ALWAYS" GridPane.margin="$defaultInsets"/>
     <HBox alignment="BASELINE_RIGHT" spacing="8.0" GridPane.columnIndex="0" GridPane.columnSpan="4" GridPane.rowIndex="2" GridPane.hgrow="ALWAYS" GridPane.margin="$defaultInsets">
-        <Button text="%edit.save" prefWidth="80.0"/>
-        <Button text="%edit.dismiss" prefWidth="80.0"/>
+        <Button text="%edit.restore"/>
     </HBox>
 </GridPane>
