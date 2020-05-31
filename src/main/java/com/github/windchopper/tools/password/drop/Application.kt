@@ -2,14 +2,12 @@ package com.github.windchopper.tools.password.drop
 
 import com.github.windchopper.common.fx.cdi.ResourceBundleLoad
 import com.github.windchopper.common.fx.cdi.form.StageFormLoad
-import com.github.windchopper.common.fx.dialog.ExceptionDialog
-import com.github.windchopper.common.fx.dialog.ExceptionDialogModel
 import com.github.windchopper.common.preferences.PlatformPreferencesStorage
 import com.github.windchopper.common.preferences.PreferencesEntry
 import com.github.windchopper.common.preferences.PreferencesStorage
 import com.github.windchopper.common.preferences.types.FlatType
 import com.github.windchopper.common.util.ClassPathResource
-import com.github.windchopper.tools.password.drop.ui.AnyStageController
+import com.github.windchopper.tools.password.drop.misc.Exit
 import javafx.application.Platform
 import javafx.stage.Stage
 import org.jboss.weld.environment.se.Weld
@@ -21,8 +19,6 @@ import java.util.*
 import java.util.function.Function
 import java.util.function.Supplier
 import java.util.prefs.Preferences
-
-class Exit
 
 class Application: javafx.application.Application() {
 
@@ -67,23 +63,4 @@ class Application: javafx.application.Application() {
         weld.shutdown()
     }
 
-}
-
-fun <T> T.display(stageController: AnyStageController) where T: Throwable = Platform.runLater {
-    ExceptionDialog(stageController.prepareModalDialogFrame(), ExceptionDialogModel()
-        .also { it.exception = this })
-        .show()
-}
-
-fun AnyStageController.exceptionally(runnable: () -> Unit) = try {
-    runnable.invoke()
-} catch (thrown: Exception) {
-    thrown.display(this)
-}
-
-fun <T> AnyStageController.exceptionally(supplier: () -> T, defaultSupplier: () -> T): T = try {
-    supplier.invoke()
-} catch (thrown: Exception) {
-    thrown.display(this)
-    defaultSupplier.invoke()
 }

@@ -2,10 +2,8 @@ package com.github.windchopper.tools.password.drop.ui
 
 import com.github.windchopper.common.fx.cdi.form.Form
 import com.github.windchopper.tools.password.drop.Application
-import com.github.windchopper.tools.password.drop.Exit
 import com.github.windchopper.tools.password.drop.book.*
-import com.github.windchopper.tools.password.drop.crypto.EncryptEngine
-import com.github.windchopper.tools.password.drop.exceptionally
+import com.github.windchopper.tools.password.drop.misc.*
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.binding.BooleanBinding
@@ -44,18 +42,17 @@ import java.util.concurrent.Callable
 import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.event.Event
 import javax.enterprise.event.Observes
-import javax.enterprise.inject.spi.BeanManager
 import javax.imageio.ImageIO
 import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.reflect.KClass
 
-@ApplicationScoped @Form(Application.FXML_MAIN) class MainStageController: AnyStageController() {
+@ApplicationScoped @Form(Application.FXML_MAIN) class MainController: Controller() {
 
     @Inject private lateinit var bookCase: BookCase
     @Inject private lateinit var treeEditEvent: Event<TreeEdit<BookPart>>
     @Inject private lateinit var treeSelectionEvent: Event<TreeSelection<BookPart>>
-    @Inject private lateinit var treeHideEvent: Event<TreeHide>
+    @Inject private lateinit var mainHideEvent: Event<MainHide>
 
     @FXML private lateinit var bookView: TreeView<BookPart>
     @FXML private lateinit var newPageMenuItem: MenuItem
@@ -67,7 +64,6 @@ import kotlin.reflect.KClass
     @FXML private lateinit var reloadBookMenuItem: MenuItem
 
     private var trayIcon: TrayIcon? = null
-    private var encryptEngine: EncryptEngine? = null
     private var book: Book? = null
 
     override fun preferredStageSize(): Dimension2D {
@@ -86,7 +82,7 @@ import kotlin.reflect.KClass
             stayOnTopMenuItem.isSelected = isAlwaysOnTop
 
             setOnCloseRequest { event ->
-                treeHideEvent.fire(TreeHide())
+                mainHideEvent.fire(MainHide())
             }
 
             with (scene) {
@@ -159,14 +155,17 @@ import kotlin.reflect.KClass
     }
 
     fun buildNewBook(): Book {
-        return Book().also {
-            it.name = Application.messages["book.unnamed"]
-            it.pages.add(Page().also {
-                it.name = Application.messages["page.unnamed"]
-                it.paragraphs.add(Paragraph().also {
-                    it.name = Application.messages["paragraph.unnamed"]
-                    it.phrases.add(Phrase().also {
-                        it.name = Application.messages["phrase.unnamed"]
+        return Book().also { book ->
+            book.name = Application.messages["book.unnamed"]
+            book.pages.add(Page().also { page ->
+                page.name = Application.messages["page.unnamed"]
+                page.parent = book
+                page.paragraphs.add(Paragraph().also { paragraph ->
+                    paragraph.name = Application.messages["paragraph.unnamed"]
+                    paragraph.parent = page
+                    paragraph.phrases.add(Phrase().also { phrase ->
+                        phrase.name = Application.messages["phrase.unnamed"]
+                        phrase.parent = paragraph
                     })
                 })
             })
@@ -175,22 +174,33 @@ import kotlin.reflect.KClass
 
     fun fillBookViewFromBook() {
         book?.let { loadedBook ->
-            reloadBookMenuItem.isDisable = !loadedBook.fileAttached
+            reloadBookMenuItem.isDisable = loadedBook.path == null
 
             val rootItem = TreeItem<BookPart>(book)
-                .also { bookView.root = it; it.isExpanded = true }
+                .also {
+                    bookView.root = it
+                    it.isExpanded = true
+                }
 
             loadedBook.pages.forEach { page ->
                 val pageItem = TreeItem<BookPart>(page)
-                    .also { rootItem.children.add(it); it.isExpanded = true }
+                    .also {
+                        rootItem.children.add(it)
+                        it.isExpanded = true
+                    }
 
                 page.paragraphs.forEach { paragraph ->
                     val paragraphItem = TreeItem<BookPart>(paragraph)
-                        .also { pageItem.children.add(it); it.isExpanded = true }
+                        .also {
+                            pageItem.children.add(it)
+                            it.isExpanded = true
+                        }
 
                     paragraph.phrases.forEach { word ->
                         TreeItem<BookPart>(word)
-                            .also { paragraphItem.children.add(it) }
+                            .also {
+                                paragraphItem.children.add(it)
+                            }
                     }
                 }
             }
@@ -199,19 +209,19 @@ import kotlin.reflect.KClass
 
     fun addMenuItemBindings() {
         with (bookView.selectionModel) {
-            fun selectedItemIs(vararg types: KClass<*>): BooleanBinding {
+            fun selectedItemIs(type: KClass<*>): BooleanBinding {
                 return Bindings.createBooleanBinding(
                     Callable {
                         selectedItem?.value
-                            ?.let { value -> types.any { type -> type.isInstance(value) } }
+                            ?.let { type.isInstance(it) }
                             ?:false
                     },
                     selectedItemProperty())
             }
 
-            newPageMenuItem.disableProperty().bind(selectedItemProperty().isNull.or(selectedItemIs(Book::class, Page::class).not()))
-            newParagraphMenuItem.disableProperty().bind(selectedItemProperty().isNull.or(selectedItemIs(Page::class, Paragraph::class).not()))
-            newPhraseMenuItem.disableProperty().bind(selectedItemProperty().isNull.or(selectedItemIs(Paragraph::class, Phrase::class).not()))
+            newPageMenuItem.disableProperty().bind(selectedItemProperty().isNull.or(selectedItemIs(Book::class).not()))
+            newParagraphMenuItem.disableProperty().bind(selectedItemProperty().isNull.or(selectedItemIs(Page::class).not()))
+            newPhraseMenuItem.disableProperty().bind(selectedItemProperty().isNull.or(selectedItemIs(Paragraph::class).not()))
             editMenuItem.disableProperty().bind(selectedItemProperty().isNull)
             deleteMenuItem.disableProperty().bind(selectedItemProperty().isNull)
         }
@@ -261,15 +271,51 @@ import kotlin.reflect.KClass
     }
 
     @FXML fun newPage(event: ActionEvent) {
+        with (bookView) {
+            selectionModel.selectedItem.let { item ->
+                (item.value as Book).let { book ->
+                    book.pages.add(Page().also {
+                        it.name = Application.messages["page.unnamed"]
+                        it.parent = book
+                        item.children.add(TreeItem(it))
+                    })
+                }
+            }
 
+            refresh()
+        }
     }
 
-    @FXML fun newParagaph(event: ActionEvent) {
+    @FXML fun newParagraph(event: ActionEvent) {
+        with (bookView) {
+            selectionModel.selectedItem.let {  item ->
+                (item.value as Page).let { page ->
+                    page.paragraphs.add(Paragraph().also {
+                        it.name = Application.messages["paragraph.unnamed"]
+                        it.parent = page
+                        item.children.add(TreeItem(it))
+                    })
+                }
+            }
 
+            refresh()
+        }
     }
 
     @FXML fun newPhrase(event: ActionEvent) {
+        with (bookView) {
+            selectionModel.selectedItem.let {  item ->
+                (item.value as Paragraph).let { paragraph ->
+                    paragraph.phrases.add(Phrase().also {
+                        it.name = Application.messages["phrase.unnamed"]
+                        it.parent = paragraph
+                        item.children.add(TreeItem(it))
+                    })
+                }
+            }
 
+            refresh()
+        }
     }
 
     @FXML fun edit(event: ActionEvent) {
@@ -314,7 +360,11 @@ import kotlin.reflect.KClass
         Platform.exit()
     }
 
-    fun afterExit(@Observes exit: Exit) {
+    fun update(@Observes event: TreeUpdateRequest) {
+        bookView.refresh()
+    }
+
+    fun afterExit(@Observes event: Exit) {
         trayIcon?.let { icon ->
             SystemTray.getSystemTray().remove(icon)
         }

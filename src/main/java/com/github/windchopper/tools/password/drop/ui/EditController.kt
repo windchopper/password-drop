@@ -7,6 +7,7 @@ import com.github.windchopper.common.util.ClassPathResource
 import com.github.windchopper.tools.password.drop.Application
 import com.github.windchopper.tools.password.drop.book.BookPart
 import com.github.windchopper.tools.password.drop.book.Phrase
+import com.github.windchopper.tools.password.drop.misc.*
 import javafx.beans.binding.Bindings
 import javafx.beans.property.adapter.JavaBeanStringPropertyBuilder
 import javafx.event.ActionEvent
@@ -26,9 +27,10 @@ import javax.enterprise.event.Event
 import javax.enterprise.event.Observes
 import javax.inject.Inject
 
-@ApplicationScoped @Form(Application.FXML_EDIT) class EditStageController: AnyStageController() {
+@ApplicationScoped @Form(Application.FXML_EDIT) class EditController: Controller() {
 
     @Inject private lateinit var formLoadEvent: Event<FormLoad>
+    @Inject private lateinit var treeUpdateRequestEvent: Event<TreeUpdateRequest>
 
     @FXML private lateinit var nameField: TextField
     @FXML private lateinit var textLabel: Label
@@ -48,6 +50,10 @@ import javax.inject.Inject
 
         bind(parameters["bookPart"] as BookPart)
 
+        nameField.textProperty().addListener { property, oldValue, newValue ->
+            treeUpdateRequestEvent.fire(TreeUpdateRequest())
+        }
+
         restoreButton.disableProperty().bind(Bindings.createBooleanBinding(
             Callable { savedName == nameField.text && savedText == textField.text },
             nameField.textProperty(),
@@ -55,8 +61,8 @@ import javax.inject.Inject
     }
 
     fun unbind() {
-        nameField.textProperty().unbind()
-        textField.textProperty().unbind()
+        nameField.textProperty().unbindBidirectionalAndForget()
+        textField.textProperty().unbindBidirectionalAndForget()
     }
 
     fun bind(bookPart: BookPart) {
@@ -64,8 +70,8 @@ import javax.inject.Inject
         textField.isVisible = false
 
         with (JavaBeanStringPropertyBuilder.create().bean(bookPart).name("name").build()) {
-            nameField.textProperty().bindBidirectional(this)
             savedName = get()
+            nameField.textProperty().bindBidirectionalAndRemember(this)
         }
 
         if (bookPart !is Phrase) {
@@ -76,19 +82,13 @@ import javax.inject.Inject
         textField.isVisible = true
 
         with (JavaBeanStringPropertyBuilder.create().bean(bookPart).name("text").build()) {
-            textField.textProperty().bindBidirectional(this)
             savedText = get()
+            textField.textProperty().bindBidirectionalAndRemember(this)
         }
     }
 
     fun editFired(@Observes event: TreeEdit<BookPart>) {
-        if (stage != null) {
-            if (stage.isShowing) {
-                stage.toFront()
-            } else {
-                stage.show()
-            }
-        } else {
+        if (stage != null) if (stage.isShowing) stage.toFront() else stage.show() else
             formLoadEvent.fire(StageFormLoad(ClassPathResource(Application.FXML_EDIT), mutableMapOf("bookPart" to event.item.value)) {
                 Stage()
                     .also {
@@ -98,7 +98,6 @@ import javax.inject.Inject
                         it.isResizable = false
                     }
             })
-        }
     }
 
     fun selectionFired(@Observes event: TreeSelection<BookPart>) {
@@ -106,11 +105,13 @@ import javax.inject.Inject
             stage.toFront()
             unbind()
             event.newSelection
-                ?.let { bind(it.value) }
+                ?.let {
+                    bind(it.value)
+                }
         }
     }
 
-    fun hideFired(@Observes event: TreeHide) {
+    fun hideFired(@Observes event: MainHide) {
         stage?.hide()
     }
 

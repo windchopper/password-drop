@@ -7,7 +7,7 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.PBEParameterSpec
 
-class EncryptEngine(password: String, salt: EncryptSalt) {
+open class EncryptEngine(password: String, salt: EncryptSalt) {
 
     private val cipher = Cipher.getInstance("PBEWithMD5AndTripleDES")
     private val parameters: PBEParameterSpec = salt.passwordBasedEncryptionParameters()

@@ -5,7 +5,7 @@
 <?import javafx.geometry.Insets?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="100.0" xmlns="http://javafx.com/javafx/8"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.windchopper.tools.password.drop.ui.MainStageController">
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.windchopper.tools.password.drop.ui.MainController">
     <padding>
         <Insets topRightBottomLeft="4"/>
     </padding>
@@ -15,7 +15,7 @@
                 <ContextMenu>
                     <items>
                         <MenuItem fx:id="newPageMenuItem" text="%main.newPage" onAction="#newPage"/>
-                        <MenuItem fx:id="newParagraphMenuItem" text="%main.newParagraph" onAction="#newParagaph"/>
+                        <MenuItem fx:id="newParagraphMenuItem" text="%main.newParagraph" onAction="#newParagraph"/>
                         <MenuItem fx:id="newPhraseMenuItem" text="%main.newPhrase" onAction="#newPhrase"/>
                         <MenuItem fx:id="editMenuItem" text="%main.edit" onAction="#edit"/>
                         <MenuItem fx:id="deleteMenuItem" text="%main.delete" onAction="#delete"/>

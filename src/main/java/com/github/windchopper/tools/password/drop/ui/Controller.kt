@@ -8,7 +8,7 @@ import javafx.scene.image.Image
 import javafx.stage.Modality
 import javafx.stage.Stage
 
-abstract class AnyStageController: StageFormController() {
+abstract class Controller: StageFormController() {
 
     override fun afterLoad(form: Parent, parameters: MutableMap<String, *>, formNamespace: MutableMap<String, *>) {
         super.afterLoad(form, parameters, formNamespace)

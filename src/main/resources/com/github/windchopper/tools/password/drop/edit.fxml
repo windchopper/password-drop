@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 
 <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="100.0" minWidth="200.0" xmlns="http://javafx.com/javafx/8"
-          xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.windchopper.tools.password.drop.ui.EditStageController">
+          xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.windchopper.tools.password.drop.ui.EditController">
     <fx:define>
         <Insets fx:id="defaultInsets" topRightBottomLeft="4"/>
     </fx:define>
