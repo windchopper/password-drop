@@ -1,5 +1,6 @@
 package com.github.windchopper.tools.password.drop.book
 
+import com.github.windchopper.tools.password.drop.Application
 import com.github.windchopper.tools.password.drop.crypto.Salt
 import java.nio.file.Path
 import java.util.*
@@ -27,6 +28,13 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
 
     @XmlElement(name = "paragraph") var paragraphs: MutableList<Paragraph> = ArrayList()
 
+    fun newParagraph(): Paragraph {
+        return Paragraph().also(paragraphs::add).also {
+            it.name = Application.messages["paragraph.unnamed"]
+            it.parent = this
+        }
+    }
+
     @Suppress("unused", "UNUSED_PARAMETER") fun afterUnmarshal(unmarshaller: Unmarshaller, parent: Any) {
         this.parent = parent as Book
     }
@@ -39,6 +47,13 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
 
     @Suppress("unused", "UNUSED_PARAMETER") fun afterUnmarshal(unmarshaller: Unmarshaller, parent: Any) {
         this.parent = parent as Page
+    }
+
+    fun newPhrase(): Phrase {
+        return Phrase().also(phrases::add).also {
+            it.name = Application.messages["phrase.unnamed"]
+            it.parent = this
+        }
     }
 
 }
@@ -60,33 +75,37 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
     @XmlAttribute(name = "salt") @XmlJavaTypeAdapter(SaltAdapter::class) var salt: Salt? = null
     @XmlElement(name = "page") var pages: MutableList<Page> = ArrayList()
 
+    fun newPage(): Page {
+        return Page().also(pages::add).also {
+            it.name = Application.messages["page.unnamed"]
+            it.parent = this
+        }
+    }
+
     fun copy(textHandler: (String?) -> String? = { it }): Book {
         return Book().also { newBook ->
             newBook.name = name
             newBook.path = path
             newBook.salt = salt
-
             pages.forEach { page ->
-                newBook.pages.add(Page().also { newPage ->
-                    newPage.parent = newBook
-                    newPage.name = page.name
-
-                    page.paragraphs.forEach { paragraph ->
-                        newPage.paragraphs.add(Paragraph().also { newParagraph ->
-                            newParagraph.parent = newPage
-                            newParagraph.name = paragraph.name
-
-                            paragraph.phrases.forEach { phrase ->
-                                newParagraph.phrases.add(Phrase().also { newPhrase ->
-                                    newPhrase.parent = newParagraph
-                                    newPhrase.name = phrase.name
-                                    newPhrase.text = textHandler.invoke(phrase.text)
-                                })
-                            }
-                        })
-                    }
+            newBook.pages.add(Page().also { newPage ->
+                newPage.parent = newBook
+                newPage.name = page.name
+                page.paragraphs.forEach { paragraph ->
+                newPage.paragraphs.add(Paragraph().also { newParagraph ->
+                    newParagraph.parent = newPage
+                    newParagraph.name = paragraph.name
+                    paragraph.phrases.forEach { phrase ->
+                    newParagraph.phrases.add(Phrase().also { newPhrase ->
+                        newPhrase.parent = newParagraph
+                        newPhrase.name = phrase.name
+                        newPhrase.text = textHandler.invoke(phrase.text)
+                    })
+                }
                 })
             }
+            })
+        }
         }
     }
 

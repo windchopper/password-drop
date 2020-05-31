@@ -158,18 +158,11 @@ import kotlin.reflect.KClass
     fun buildNewBook(): Book {
         return Book().also { book ->
             book.name = Application.messages["book.unnamed"]
-            book.pages.add(Page().also { page ->
-                page.name = Application.messages["page.unnamed"]
-                page.parent = book
-                page.paragraphs.add(Paragraph().also { paragraph ->
-                    paragraph.name = Application.messages["paragraph.unnamed"]
-                    paragraph.parent = page
-                    paragraph.phrases.add(Phrase().also { phrase ->
-                        phrase.name = Application.messages["phrase.unnamed"]
-                        phrase.parent = paragraph
-                    })
-                })
-            })
+            book.newPage().also { page ->
+                page.newParagraph().also { paragraph ->
+                    paragraph.newPhrase()
+                }
+            }
         }
     }
 
@@ -278,12 +271,8 @@ import kotlin.reflect.KClass
     @FXML fun newPage(event: ActionEvent) {
         with (bookView) {
             selectionModel.selectedItem.let { item ->
-                (item.value as Book).let { book ->
-                    book.pages.add(Page().also {
-                        it.name = Application.messages["page.unnamed"]
-                        it.parent = book
-                        item.children.add(TreeItem(it))
-                    })
+                (item.value as Book).newPage().also {
+                    item.children.add(TreeItem(it))
                 }
             }
 
@@ -294,12 +283,8 @@ import kotlin.reflect.KClass
     @FXML fun newParagraph(event: ActionEvent) {
         with (bookView) {
             selectionModel.selectedItem.let {  item ->
-                (item.value as Page).let { page ->
-                    page.paragraphs.add(Paragraph().also {
-                        it.name = Application.messages["paragraph.unnamed"]
-                        it.parent = page
-                        item.children.add(TreeItem(it))
-                    })
+                (item.value as Page).newParagraph().also {
+                    item.children.add(TreeItem(it))
                 }
             }
 
@@ -310,12 +295,8 @@ import kotlin.reflect.KClass
     @FXML fun newPhrase(event: ActionEvent) {
         with (bookView) {
             selectionModel.selectedItem.let {  item ->
-                (item.value as Paragraph).let { paragraph ->
-                    paragraph.phrases.add(Phrase().also {
-                        it.name = Application.messages["phrase.unnamed"]
-                        it.parent = paragraph
-                        item.children.add(TreeItem(it))
-                    })
+                (item.value as Paragraph).newPhrase().also {
+                    item.children.add(TreeItem(it))
                 }
             }
 
