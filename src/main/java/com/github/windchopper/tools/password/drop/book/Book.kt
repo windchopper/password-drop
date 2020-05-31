@@ -88,24 +88,24 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
             newBook.path = path
             newBook.salt = salt
             pages.forEach { page ->
-            newBook.pages.add(Page().also { newPage ->
-                newPage.parent = newBook
-                newPage.name = page.name
-                page.paragraphs.forEach { paragraph ->
-                newPage.paragraphs.add(Paragraph().also { newParagraph ->
-                    newParagraph.parent = newPage
-                    newParagraph.name = paragraph.name
-                    paragraph.phrases.forEach { phrase ->
-                    newParagraph.phrases.add(Phrase().also { newPhrase ->
-                        newPhrase.parent = newParagraph
-                        newPhrase.name = phrase.name
-                        newPhrase.text = textHandler.invoke(phrase.text)
-                    })
-                }
+                newBook.pages.add(Page().also { newPage ->
+                    newPage.parent = newBook
+                    newPage.name = page.name
+                    page.paragraphs.forEach { paragraph ->
+                        newPage.paragraphs.add(Paragraph().also { newParagraph ->
+                            newParagraph.parent = newPage
+                            newParagraph.name = paragraph.name
+                            paragraph.phrases.forEach { phrase ->
+                                newParagraph.phrases.add(Phrase().also { newPhrase ->
+                                    newPhrase.parent = newParagraph
+                                    newPhrase.name = phrase.name
+                                    newPhrase.text = textHandler.invoke(phrase.text)
+                                })
+                            }
+                        })
+                    }
                 })
             }
-            })
-        }
         }
     }
 
