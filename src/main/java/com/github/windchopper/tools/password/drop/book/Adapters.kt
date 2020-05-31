@@ -4,7 +4,7 @@ import com.github.windchopper.tools.password.drop.crypto.Salt
 import java.util.*
 import javax.xml.bind.annotation.adapters.XmlAdapter
 
-class EncryptSaltAdapter: XmlAdapter<String?, Salt?>() {
+class SaltAdapter: XmlAdapter<String?, Salt?>() {
 
     override fun marshal(salt: Salt?): String? {
         return salt?.base64EncodedString()
