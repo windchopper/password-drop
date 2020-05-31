@@ -3,9 +3,10 @@ module windchopper.tools.password.drop {
     opens com.github.windchopper.tools.password.drop;
     opens com.github.windchopper.tools.password.drop.book;
     opens com.github.windchopper.tools.password.drop.crypto;
+    opens com.github.windchopper.tools.password.drop.misc;
+    opens com.github.windchopper.tools.password.drop.ui;
     opens com.github.windchopper.tools.password.drop.i18n;
     opens com.github.windchopper.tools.password.drop.images;
-    opens com.github.windchopper.tools.password.drop.ui;
 
     requires kotlin.stdlib;
     requires kotlin.stdlib.jdk8;

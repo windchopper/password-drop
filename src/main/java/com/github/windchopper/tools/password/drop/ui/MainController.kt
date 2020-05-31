@@ -3,6 +3,7 @@ package com.github.windchopper.tools.password.drop.ui
 import com.github.windchopper.common.fx.cdi.form.Form
 import com.github.windchopper.tools.password.drop.Application
 import com.github.windchopper.tools.password.drop.book.*
+import com.github.windchopper.tools.password.drop.crypto.CryptoEngine
 import com.github.windchopper.tools.password.drop.misc.*
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
@@ -81,7 +82,7 @@ import kotlin.reflect.KClass
             isAlwaysOnTop = Application.stayOnTop.load()?:false
             stayOnTopMenuItem.isSelected = isAlwaysOnTop
 
-            setOnCloseRequest { event ->
+            setOnCloseRequest {
                 mainHideEvent.fire(MainHide())
             }
 
@@ -268,6 +269,10 @@ import kotlin.reflect.KClass
                         }
                 }
         }
+    }
+
+    fun cryptoEngine(): CryptoEngine {
+        TODO("oops")
     }
 
     @FXML fun newPage(event: ActionEvent) {

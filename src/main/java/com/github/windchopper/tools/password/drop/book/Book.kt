@@ -1,6 +1,6 @@
 package com.github.windchopper.tools.password.drop.book
 
-import com.github.windchopper.tools.password.drop.crypto.EncryptSalt
+import com.github.windchopper.tools.password.drop.crypto.Salt
 import java.nio.file.Path
 import java.util.*
 import javax.xml.bind.Unmarshaller
@@ -57,7 +57,7 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
 
     @XmlTransient var path: Path? = null
 
-    @XmlAttribute(name = "salt") @XmlJavaTypeAdapter(EncryptSaltAdapter::class) var salt: EncryptSalt? = null
+    @XmlAttribute(name = "salt") @XmlJavaTypeAdapter(EncryptSaltAdapter::class) var salt: Salt? = null
     @XmlElement(name = "page") var pages: MutableList<Page> = ArrayList()
 
     fun copy(textHandler: (String?) -> String? = { it }): Book {
