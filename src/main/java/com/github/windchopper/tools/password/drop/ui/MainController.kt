@@ -8,6 +8,7 @@ import com.github.windchopper.tools.password.drop.misc.*
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.binding.BooleanBinding
+import javafx.beans.property.adapter.JavaBeanBooleanPropertyBuilder
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.geometry.Dimension2D
@@ -66,6 +67,10 @@ import kotlin.reflect.KClass
 
     private var trayIcon: TrayIcon? = null
     private var book: Book? = null
+
+//    private val cryptoEngine: CryptoEngine by lazy {
+//
+//    }
 
     override fun preferredStageSize(): Dimension2D {
         return Screen.getPrimary().visualBounds
@@ -264,10 +269,6 @@ import kotlin.reflect.KClass
         }
     }
 
-    fun cryptoEngine(): CryptoEngine {
-        TODO("oops")
-    }
-
     @FXML fun newPage(event: ActionEvent) {
         with (bookView) {
             selectionModel.selectedItem.let { item ->
@@ -309,7 +310,9 @@ import kotlin.reflect.KClass
     }
 
     @FXML fun delete(event: ActionEvent) {
-
+        exceptionally {
+            throw RuntimeException()
+        }
     }
 
     @FXML fun open(event: ActionEvent) {

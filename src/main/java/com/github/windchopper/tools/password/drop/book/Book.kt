@@ -29,10 +29,12 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
     @XmlElement(name = "paragraph") var paragraphs: MutableList<Paragraph> = ArrayList()
 
     fun newParagraph(): Paragraph {
-        return Paragraph().also(paragraphs::add).also {
-            it.name = Application.messages["paragraph.unnamed"]
-            it.parent = this
-        }
+        return Paragraph()
+            .also {
+                paragraphs.add(it)
+                it.name = Application.messages["paragraph.unnamed"]
+                it.parent = this
+            }
     }
 
     @Suppress("unused", "UNUSED_PARAMETER") fun afterUnmarshal(unmarshaller: Unmarshaller, parent: Any) {
@@ -50,10 +52,12 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
     }
 
     fun newPhrase(): Phrase {
-        return Phrase().also(phrases::add).also {
-            it.name = Application.messages["phrase.unnamed"]
-            it.parent = this
-        }
+        return Phrase()
+            .also {
+                phrases.add(it)
+                it.name = Application.messages["phrase.unnamed"]
+                it.parent = this
+            }
     }
 
 }
@@ -76,10 +80,12 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
     @XmlElement(name = "page") var pages: MutableList<Page> = ArrayList()
 
     fun newPage(): Page {
-        return Page().also(pages::add).also {
-            it.name = Application.messages["page.unnamed"]
-            it.parent = this
-        }
+        return Page()
+            .also {
+                pages.add(it)
+                it.name = Application.messages["page.unnamed"]
+                it.parent = this
+            }
     }
 
     fun copy(textHandler: (String?) -> String? = { it }): Book {

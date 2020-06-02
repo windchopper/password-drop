@@ -1,14 +1,36 @@
 package com.github.windchopper.tools.password.drop.misc
 
-import com.github.windchopper.common.fx.dialog.ExceptionDialog
-import com.github.windchopper.common.fx.dialog.ExceptionDialogModel
 import com.github.windchopper.tools.password.drop.ui.Controller
 import javafx.application.Platform
 import javafx.beans.property.Property
+import javafx.stage.Modality
 
-fun <T> T.display(stageController: Controller) where T: Throwable = Platform.runLater {
-    ExceptionDialog(stageController.prepareModalDialogFrame(), ExceptionDialogModel()
-        .also { it.exception = this })
+fun String.trimToNull(): String? = with (trim()) {
+    return if (length == 0) null else this
+}
+
+fun String.left(maxLength: Int, ellipsis: Boolean? = false): String = if (length > maxLength) {
+    if (ellipsis == true) {
+        substring(0, maxLength - 3) + "..."
+    } else {
+        substring(0, maxLength)
+    }
+} else {
+    this
+}
+
+fun String.right(maxLength: Int, ellipsis: Boolean? = false): String = if (length > maxLength) {
+    if (ellipsis == true) {
+        "..." + substring(length - maxLength - 3)
+    } else {
+        substring(length - maxLength)
+    }
+} else {
+    this
+}
+
+fun <T> T.display(controller: Controller) where T: Throwable = Platform.runLater {
+    controller.prepareErrorAlert(Modality.APPLICATION_MODAL, this)
         .show()
 }
 
