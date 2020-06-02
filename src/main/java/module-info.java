@@ -10,6 +10,7 @@ module windchopper.tools.password.drop {
 
     requires kotlin.stdlib;
     requires kotlin.stdlib.jdk8;
+    requires kotlin.reflect;
 
     requires kotlinx.coroutines.core;
 

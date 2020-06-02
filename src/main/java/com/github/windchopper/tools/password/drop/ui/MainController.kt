@@ -3,12 +3,10 @@ package com.github.windchopper.tools.password.drop.ui
 import com.github.windchopper.common.fx.cdi.form.Form
 import com.github.windchopper.tools.password.drop.Application
 import com.github.windchopper.tools.password.drop.book.*
-import com.github.windchopper.tools.password.drop.crypto.CryptoEngine
 import com.github.windchopper.tools.password.drop.misc.*
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.binding.BooleanBinding
-import javafx.beans.property.adapter.JavaBeanBooleanPropertyBuilder
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.geometry.Dimension2D
@@ -341,8 +339,8 @@ import kotlin.reflect.KClass
     }
 
     @FXML fun toggleStayOnTop(event: ActionEvent) {
-        stage.isAlwaysOnTop = stayOnTopMenuItem.isSelected
-        Application.stayOnTop.save(stage.isAlwaysOnTop)
+        stage.isAlwaysOnTop = stayOnTopMenuItem.isSelected;
+        Application.stayOnTop.save(stayOnTopMenuItem.isSelected)
     }
 
     @FXML fun exit(event: ActionEvent) {

@@ -3,7 +3,10 @@ package com.github.windchopper.tools.password.drop.misc
 import com.github.windchopper.tools.password.drop.ui.Controller
 import javafx.application.Platform
 import javafx.beans.property.Property
+import javafx.beans.property.adapter.JavaBeanObjectProperty
+import javafx.beans.property.adapter.JavaBeanObjectPropertyBuilder
 import javafx.stage.Modality
+import kotlin.reflect.KProperty
 
 fun String.trimToNull(): String? = with (trim()) {
     return if (length == 0) null else this
@@ -66,4 +69,12 @@ fun <T> Property<T>.unbindBidirectionalAndForget() {
             @Suppress("UNCHECKED_CAST") unbindBidirectional(it as Property<T>)
         }
     }
+}
+
+fun <T> Any.observableProperty(name: String): JavaBeanObjectProperty<T> {
+    @Suppress("UNCHECKED_CAST") return JavaBeanObjectPropertyBuilder
+        .create()
+        .bean(this)
+        .name(name)
+        .build() as JavaBeanObjectProperty<T>
 }
