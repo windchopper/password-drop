@@ -4,6 +4,7 @@ import com.github.windchopper.common.fx.cdi.form.Form
 import com.github.windchopper.tools.password.drop.Application
 import com.github.windchopper.tools.password.drop.book.*
 import com.github.windchopper.tools.password.drop.crypto.CryptoEngine
+import com.github.windchopper.tools.password.drop.crypto.Salt
 import com.github.windchopper.tools.password.drop.misc.*
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
@@ -15,26 +16,27 @@ import javafx.geometry.Insets
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.*
-import javafx.scene.control.Alert.AlertType
 import javafx.scene.effect.DropShadow
 import javafx.scene.image.Image
-import javafx.scene.image.ImageView
 import javafx.scene.image.WritableImage
 import javafx.scene.input.ClipboardContent
 import javafx.scene.input.DataFormat
 import javafx.scene.input.TransferMode
-import javafx.scene.layout.*
+import javafx.scene.layout.Background
+import javafx.scene.layout.BackgroundFill
+import javafx.scene.layout.CornerRadii
 import javafx.scene.paint.Color
 import javafx.scene.paint.Paint
 import javafx.scene.text.Text
-import javafx.stage.*
+import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
-import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import javafx.stage.Modality
+import javafx.stage.Screen
+import javafx.stage.StageStyle
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.net.URL
 import java.nio.file.Paths
-import java.util.*
 import java.util.concurrent.Callable
 import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.event.Event
@@ -204,50 +206,25 @@ import kotlin.reflect.KClass
                 return
             }
 
+            var passwordAlert: PasswordAlert? = null
+
             val alertChoice = runWithFxThread {
-                val screen = stage.screen()
-                prepareAlert(AlertType.NONE, Modality.APPLICATION_MODAL, screen).let { alert ->
-                    alert.graphic = ImageView(Image("/com/github/windchopper/tools/password/drop/images/lock_48.png"))
-                    alert.title = Application.messages["main.password.enter"]
-                    alert.headerText = if (book.path == null) {
-                        Application.messages["main.password.new"]
-                    } else {
-                        Application.messages["main.password.opened"]
-                    }
-
-                    Collections.addAll(alert.buttonTypes,
-                        ButtonType.OK,
-                        ButtonType.CANCEL)
-
-                    with (alert.dialogPane) {
-                        val passwordField = PasswordField().also { field ->
-                            GridPane.setMargin(field, Insets(0.0, 0.0, 0.0, 0.0))
-                            GridPane.setHgrow(field, Priority.ALWAYS)
-                            field.prefColumnCount = 20
-                        }
-
-                        val passwordLabel = Label(Application.messages["main.password"]).also { label ->
-                            GridPane.setMargin(label, Insets(0.0, 8.0, 0.0, 0.0))
-                            label.labelFor = passwordField
-                        }
-
-                        maxWidth = screen.visualBounds.width / 4
-
-                        scene.window.setOnShown {
-                            passwordField.requestFocus()
-                        }
-
-                        content = GridPane().also { pane ->
-                            pane.add(passwordLabel, 0, 0)
-                            pane.add(passwordField, 1, 0)
-                        }
-                    }
-
-                    alert.showAndWait()
-                }
+                passwordAlert = PasswordAlert(book.path == null)
+                prepareAlert(passwordAlert!!, Modality.APPLICATION_MODAL, stage.screen())
+                    .showAndWait()
             }
 
-            print("choice: ${alertChoice}")
+            alertChoice
+                .filter { it == ButtonType.OK }
+                .ifPresent {
+                    if (book.salt == null) {
+                        book.salt = Salt()
+                    }
+
+                    book.cryptoEngine = CryptoEngine(
+                        passwordAlert!!.passwordProperty.get(),
+                        book.salt!!)
+                }
         }
     }
 

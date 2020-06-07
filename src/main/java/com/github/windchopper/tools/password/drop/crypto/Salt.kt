@@ -4,7 +4,7 @@ import java.security.SecureRandom
 import java.util.*
 import javax.crypto.spec.PBEParameterSpec
 
-class Salt(val saltBytes: ByteArray? = ByteArray(SALT_SIZE).also { SecureRandom().nextBytes(it) }) {
+class Salt(private val saltBytes: ByteArray? = ByteArray(SALT_SIZE).also(SecureRandom()::nextBytes)) {
 
     companion object {
 

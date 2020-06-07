@@ -1,10 +1,10 @@
 package com.github.windchopper.tools.password.drop.misc
 
 import com.github.windchopper.tools.password.drop.ui.Controller
+import com.github.windchopper.tools.password.drop.ui.ErrorAlert
 import javafx.application.Platform
 import javafx.beans.property.Property
-import javafx.beans.property.adapter.JavaBeanObjectProperty
-import javafx.beans.property.adapter.JavaBeanObjectPropertyBuilder
+import javafx.geometry.Insets
 import javafx.stage.Modality
 import javafx.stage.Screen
 import javafx.stage.Window
@@ -13,6 +13,10 @@ import kotlinx.coroutines.sync.withLock
 
 fun String.trimToNull(): String? = with (trim()) {
     return if (length == 0) null else this
+}
+
+fun String.isNotBlank(): Boolean = with (trim()) {
+    return length > 0
 }
 
 fun String.left(maxLength: Int, ellipsis: Boolean? = false): String = if (length > maxLength) {
@@ -36,7 +40,7 @@ fun String.right(maxLength: Int, ellipsis: Boolean? = false): String = if (lengt
 }
 
 fun <T> T.display(controller: Controller) where T: Throwable = Platform.runLater {
-    controller.prepareErrorAlert(Modality.APPLICATION_MODAL, this)
+    controller.prepareAlert(ErrorAlert(this), Modality.APPLICATION_MODAL)
         .show()
 }
 
@@ -74,14 +78,6 @@ fun <T> Property<T>.unbindBidirectionalAndForget() {
     }
 }
 
-fun <T> Any.observableProperty(name: String): JavaBeanObjectProperty<T> {
-    @Suppress("UNCHECKED_CAST") return JavaBeanObjectPropertyBuilder
-        .create()
-        .bean(this)
-        .name(name)
-        .build() as JavaBeanObjectProperty<T>
-}
-
 suspend fun <T> runWithFxThread(action: () -> T): T {
     var result: T? = null
     val locker = Mutex(true)
@@ -97,5 +93,10 @@ suspend fun <T> runWithFxThread(action: () -> T): T {
 }
 
 fun Window.screen(): Screen {
-    return Screen.getScreensForRectangle(x, y, width, height).first()
+    return Screen.getScreensForRectangle(x, y, width, height).firstOrNull()
+        ?:Screen.getPrimary()
+}
+
+fun Insets(top: Double = 0.0, right: Double = 0.0, bottom: Double = 0.0, left: Double = 0.0): Insets {
+    return Insets(top, right, bottom, left)
 }
