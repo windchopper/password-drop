@@ -9,9 +9,10 @@ import javax.xml.bind.Unmarshaller
 import javax.xml.bind.annotation.*
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter
 
-open class BookPart {
+abstract class BookPart {
 
     @XmlAttribute var name: String? = null
+    abstract val type: String?
 
     override fun toString(): String {
         return name?:"?"
@@ -19,13 +20,15 @@ open class BookPart {
 
 }
 
-open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
+abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
 
     @XmlTransient var parent: ParentType? = null
 
 }
 
 @XmlType @XmlAccessorType(XmlAccessType.FIELD) class Page: InternalBookPart<Book>() {
+
+    @XmlTransient override val type: String? = Application.messages["page.type"]
 
     @XmlElement(name = "paragraph") var paragraphs: MutableList<Paragraph> = ArrayList()
 
@@ -45,6 +48,8 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
 }
 
 @XmlType @XmlAccessorType(XmlAccessType.FIELD) class Paragraph: InternalBookPart<Page>() {
+
+    @XmlTransient override val type: String? = Application.messages["paragraph.type"]
 
     @XmlElement(name = "word") var phrases: MutableList<Phrase> = ArrayList()
 
@@ -70,6 +75,8 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
         const val ENCRYPTED_PREFIX = "{ENCRYPTED}"
 
     }
+
+    @XmlTransient override val type: String? = Application.messages["phrase.type"]
 
     @XmlValue var text: String? = null
         get() = field?.let {
@@ -104,6 +111,8 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
 }
 
 @XmlType @XmlAccessorType(XmlAccessType.FIELD) open class Book: BookPart() {
+
+    @XmlTransient override val type: String? = Application.messages["book.type"]
 
     @XmlAttribute(name = "salt") @XmlJavaTypeAdapter(SaltAdapter::class) var salt: Salt? = null
     @XmlElement(name = "page") var pages: MutableList<Page> = ArrayList()

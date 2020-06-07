@@ -17,6 +17,7 @@ import javafx.scene.Parent
 import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.control.TextField
+import javafx.scene.layout.GridPane
 import javafx.stage.Modality
 import javafx.stage.Screen
 import javafx.stage.Stage
@@ -32,6 +33,7 @@ import javax.inject.Inject
     @Inject private lateinit var formLoadEvent: Event<FormLoad>
     @Inject private lateinit var treeUpdateRequestEvent: Event<TreeUpdateRequest>
 
+    @FXML private lateinit var rootPane: GridPane
     @FXML private lateinit var nameField: TextField
     @FXML private lateinit var textLabel: Label
     @FXML private lateinit var textField: TextField
@@ -40,15 +42,12 @@ import javax.inject.Inject
     private var savedName: String? = null
     private var savedText: String? = null
 
-    override fun preferredStageSize(): Dimension2D {
-        return Screen.getPrimary().visualBounds
-            .let { Dimension2D(it.width / 3, it.height / 4) }
-    }
-
     override fun afterLoad(form: Parent, parameters: MutableMap<String, *>, formNamespace: MutableMap<String, *>) {
         super.afterLoad(form, parameters, formNamespace)
 
         bind(parameters["bookPart"] as BookPart)
+
+        rootPane.prefWidth = stage.screen().visualBounds.width / 4;
 
         nameField.textProperty().addListener { property, oldValue, newValue ->
             treeUpdateRequestEvent.fire(TreeUpdateRequest())
@@ -66,6 +65,8 @@ import javax.inject.Inject
     }
 
     fun bind(bookPart: BookPart) {
+        stage.title = "${Application.messages["edit.titlePrefix"]} - ${bookPart.type?.uncapitalize()}"
+
         textLabel.isVisible = false
         textField.isVisible = false
 

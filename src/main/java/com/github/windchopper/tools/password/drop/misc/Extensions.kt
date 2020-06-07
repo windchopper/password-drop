@@ -19,6 +19,14 @@ fun String.isNotBlank(): Boolean = with (trim()) {
     return length > 0
 }
 
+fun String.uncapitalize(): String {
+    return if (length > 0) {
+        this[0].toLowerCase() + substring(1)
+    } else {
+        this
+    }
+}
+
 fun String.left(maxLength: Int, ellipsis: Boolean? = false): String = if (length > maxLength) {
     if (ellipsis == true) {
         substring(0, maxLength - 3) + "..."
