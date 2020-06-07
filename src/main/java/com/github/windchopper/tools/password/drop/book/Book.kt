@@ -1,6 +1,7 @@
 package com.github.windchopper.tools.password.drop.book
 
 import com.github.windchopper.tools.password.drop.Application
+import com.github.windchopper.tools.password.drop.crypto.CryptoEngine
 import com.github.windchopper.tools.password.drop.crypto.Salt
 import java.nio.file.Path
 import java.util.*
@@ -64,7 +65,37 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
 
 @XmlType @XmlAccessorType(XmlAccessType.FIELD) class Phrase: InternalBookPart<Paragraph>() {
 
+    companion object {
+
+        const val ENCRYPTED_PREFIX = "{ENCRYPTED}"
+
+    }
+
     @XmlValue var text: String? = null
+        get() = field?.let {
+            return field
+                ?.let { text ->
+                    val cleanText = if (text.startsWith(ENCRYPTED_PREFIX)) {
+                        text.substring(ENCRYPTED_PREFIX.length)
+                    } else {
+                        text
+                    }
+
+                    parent?.parent?.parent?.cryptoEngine
+                        ?.decrypt(cleanText)
+                        ?:throw RuntimeException(Application.messages["error.couldNotDecrypt"])
+                }
+        }
+        set(value) {
+            field = value
+                ?.let { text ->
+                    parent?.parent?.parent?.cryptoEngine
+                        ?.let { encryptEngine ->
+                            ENCRYPTED_PREFIX + encryptEngine.encrypt(text)
+                        }
+                        ?:text
+                }
+        }
 
     @Suppress("unused", "UNUSED_PARAMETER") fun afterUnmarshal(unmarshaller: Unmarshaller, parent: Any) {
         this.parent = parent as Paragraph
@@ -72,12 +103,14 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
 
 }
 
-@XmlType @XmlAccessorType(XmlAccessType.FIELD) class Book: BookPart() {
-
-    @XmlTransient var path: Path? = null
+@XmlType @XmlAccessorType(XmlAccessType.FIELD) open class Book: BookPart() {
 
     @XmlAttribute(name = "salt") @XmlJavaTypeAdapter(SaltAdapter::class) var salt: Salt? = null
     @XmlElement(name = "page") var pages: MutableList<Page> = ArrayList()
+
+    @XmlTransient var path: Path? = null
+    @XmlTransient var cryptoEngine: CryptoEngine? = null
+    @XmlTransient var dirty: Boolean = false
 
     fun newPage(): Page {
         return Page()
@@ -88,10 +121,9 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
             }
     }
 
-    fun copy(textHandler: (String?) -> String? = { it }): Book {
-        return Book().also { newBook ->
+    open fun copy(bookSupplier: () -> Book): Book {
+        return bookSupplier.invoke().also { newBook ->
             newBook.name = name
-            newBook.path = path
             newBook.salt = salt
             pages.forEach { page ->
                 newBook.pages.add(Page().also { newPage ->
@@ -105,7 +137,7 @@ open class InternalBookPart<ParentType>: BookPart() where ParentType: BookPart {
                                 newParagraph.phrases.add(Phrase().also { newPhrase ->
                                     newPhrase.parent = newParagraph
                                     newPhrase.name = phrase.name
-                                    newPhrase.text = textHandler.invoke(phrase.text)
+                                    newPhrase.text = phrase.text
                                 })
                             }
                         })

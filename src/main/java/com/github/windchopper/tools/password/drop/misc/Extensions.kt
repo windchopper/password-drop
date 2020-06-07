@@ -6,7 +6,10 @@ import javafx.beans.property.Property
 import javafx.beans.property.adapter.JavaBeanObjectProperty
 import javafx.beans.property.adapter.JavaBeanObjectPropertyBuilder
 import javafx.stage.Modality
-import kotlin.reflect.KProperty
+import javafx.stage.Screen
+import javafx.stage.Window
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 fun String.trimToNull(): String? = with (trim()) {
     return if (length == 0) null else this
@@ -77,4 +80,22 @@ fun <T> Any.observableProperty(name: String): JavaBeanObjectProperty<T> {
         .bean(this)
         .name(name)
         .build() as JavaBeanObjectProperty<T>
+}
+
+suspend fun <T> runWithFxThread(action: () -> T): T {
+    var result: T? = null
+    val locker = Mutex(true)
+
+    Platform.runLater {
+        result = action.invoke()
+        locker.unlock()
+    }
+
+    return locker.withLock {
+        result!!
+    }
+}
+
+fun Window.screen(): Screen {
+    return Screen.getScreensForRectangle(x, y, width, height).first()
 }

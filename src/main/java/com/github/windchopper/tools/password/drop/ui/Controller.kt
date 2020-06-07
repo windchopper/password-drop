@@ -1,11 +1,10 @@
 package com.github.windchopper.tools.password.drop.ui
 
 import com.github.windchopper.common.fx.cdi.form.StageFormController
-import com.github.windchopper.common.fx.dialog.DialogFrame
-import com.github.windchopper.common.fx.dialog.StageDialogFrame
 import com.github.windchopper.tools.password.drop.Application
-import com.github.windchopper.tools.password.drop.misc.*
-import javafx.geometry.Insets
+import com.github.windchopper.tools.password.drop.misc.left
+import com.github.windchopper.tools.password.drop.misc.right
+import com.github.windchopper.tools.password.drop.misc.trimToNull
 import javafx.scene.Parent
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType
@@ -13,10 +12,10 @@ import javafx.scene.control.TextArea
 import javafx.scene.image.Image
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.Priority
-import javafx.scene.text.Text
 import javafx.stage.Modality
+import javafx.stage.Screen
 import javafx.stage.Stage
-import java.io.PrintStream
+import javafx.stage.WindowEvent
 import java.io.PrintWriter
 import java.io.StringWriter
 
@@ -35,13 +34,22 @@ abstract class Controller: StageFormController() {
                 }
     }
 
-    open fun prepareAlert(type: AlertType, modality: Modality? = Modality.WINDOW_MODAL): Alert {
+    open fun prepareAlert(type: AlertType, modality: Modality? = Modality.WINDOW_MODAL, centerOnScreen: Screen? = null): Alert {
         return Alert(type).also { alert ->
             alert.initModality(modality)
             alert.initOwner(stage)
 
             alert.dialogPane.scene.window.let { window ->
-                if (window is Stage) window.icons.addAll(stage.icons)
+                if (window is Stage) {
+                    window.icons.addAll(stage.icons)
+                }
+
+                centerOnScreen?.let { screen ->
+                    window.addEventHandler(WindowEvent.WINDOW_SHOWN) {
+                        window.x = (screen.visualBounds.width - window.width) / 2
+                        window.y = (screen.visualBounds.height - window.height) / 2
+                    }
+                }
             }
         }
     }
