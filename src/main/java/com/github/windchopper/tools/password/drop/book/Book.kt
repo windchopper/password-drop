@@ -43,7 +43,7 @@ abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPa
             }
     }
 
-    @Suppress("unused", "UNUSED_PARAMETER") fun afterUnmarshal(unmarshaller: Unmarshaller, parent: Any) {
+    fun afterUnmarshal(unmarshaller: Unmarshaller, parent: Any) {
         this.parent = parent as Book
     }
 
@@ -55,7 +55,7 @@ abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPa
 
     @XmlElement(name = "word") @JvmField var phrases: MutableList<Phrase> = ArrayList()
 
-    @Suppress("unused", "UNUSED_PARAMETER") fun afterUnmarshal(unmarshaller: Unmarshaller, parent: Any) {
+    fun afterUnmarshal(unmarshaller: Unmarshaller, parent: Any) {
         this.parent = parent as Page
     }
 
