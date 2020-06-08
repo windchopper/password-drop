@@ -3,15 +3,16 @@ package com.github.windchopper.tools.password.drop.book
 import com.github.windchopper.tools.password.drop.Application
 import com.github.windchopper.tools.password.drop.crypto.CryptoEngine
 import com.github.windchopper.tools.password.drop.crypto.Salt
+import jakarta.xml.bind.Unmarshaller
+import jakarta.xml.bind.annotation.*
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter
 import java.nio.file.Path
 import java.util.*
-import javax.xml.bind.Unmarshaller
-import javax.xml.bind.annotation.*
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter
 
 abstract class BookPart {
 
-    @XmlAttribute var name: String? = null
+    @XmlAttribute
+    var name: String? = null
     abstract val type: String?
 
     override fun toString(): String {

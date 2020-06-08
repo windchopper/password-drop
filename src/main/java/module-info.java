@@ -18,11 +18,11 @@ module windchopper.tools.password.drop {
     requires java.prefs;
     requires java.logging;
 
-    requires java.xml.bind;
-
     requires javafx.controls;
     requires javafx.fxml;
 
+    requires jakarta.xml.bind;
+    requires jakarta.activation;
     requires jakarta.inject.api;
     requires jakarta.enterprise.cdi.api;
 

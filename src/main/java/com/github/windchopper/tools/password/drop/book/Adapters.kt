@@ -1,8 +1,8 @@
 package com.github.windchopper.tools.password.drop.book
 
 import com.github.windchopper.tools.password.drop.crypto.Salt
+import jakarta.xml.bind.annotation.adapters.XmlAdapter
 import java.util.*
-import javax.xml.bind.annotation.adapters.XmlAdapter
 
 class SaltAdapter: XmlAdapter<String?, Salt?>() {
 

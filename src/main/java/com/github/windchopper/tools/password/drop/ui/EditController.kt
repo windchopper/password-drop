@@ -8,6 +8,10 @@ import com.github.windchopper.tools.password.drop.Application
 import com.github.windchopper.tools.password.drop.book.BookPart
 import com.github.windchopper.tools.password.drop.book.Phrase
 import com.github.windchopper.tools.password.drop.misc.*
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.event.Event
+import jakarta.enterprise.event.Observes
+import jakarta.inject.Inject
 import javafx.beans.binding.Bindings
 import javafx.beans.property.adapter.JavaBeanStringPropertyBuilder
 import javafx.event.ActionEvent
@@ -23,10 +27,6 @@ import javafx.stage.Screen
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import java.util.concurrent.Callable
-import javax.enterprise.context.ApplicationScoped
-import javax.enterprise.event.Event
-import javax.enterprise.event.Observes
-import javax.inject.Inject
 
 @ApplicationScoped @Form(Application.FXML_EDIT) class EditController: Controller() {
 

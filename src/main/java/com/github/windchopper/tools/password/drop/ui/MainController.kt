@@ -6,6 +6,10 @@ import com.github.windchopper.tools.password.drop.book.*
 import com.github.windchopper.tools.password.drop.crypto.CryptoEngine
 import com.github.windchopper.tools.password.drop.crypto.Salt
 import com.github.windchopper.tools.password.drop.misc.*
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.event.Event
+import jakarta.enterprise.event.Observes
+import jakarta.inject.Inject
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.binding.BooleanBinding
@@ -36,13 +40,10 @@ import javafx.stage.StageStyle
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.net.URL
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.Callable
-import javax.enterprise.context.ApplicationScoped
-import javax.enterprise.event.Event
-import javax.enterprise.event.Observes
 import javax.imageio.ImageIO
-import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.reflect.KClass
 
@@ -337,21 +338,28 @@ import kotlin.reflect.KClass
         }
     }
 
-    @FXML fun open(event: ActionEvent) {
-        FileChooser()
-            .let {
+    fun prepareFileChooser(): FileChooser {
+        return FileChooser()
+            .also {
                 it.initialDirectory = (Application.openBookPath.load()?:Paths.get(System.getProperty("user.home"))).toFile()
                 it.extensionFilters.add(ExtensionFilter(Application.messages["books"], "*.book.xml"))
-                it.showOpenDialog(stage)
-                    ?.let { file ->
-                        GlobalScope.launch {
-                            exceptionally {
-                                openBook = bookCase.readBook(file.toPath())
-                                fillBookViewFromBook()
-                            }
-                        }
-                    }
             }
+    }
+
+    @FXML fun open(event: ActionEvent) {
+        prepareFileChooser().showOpenDialog(stage)
+            ?.let { file ->
+                loadBook(file.toPath())
+            }
+    }
+
+    fun loadBook(path: Path) {
+        GlobalScope.launch {
+            exceptionally {
+                openBook = bookCase.readBook(path)
+                fillBookViewFromBook()
+            }
+        }
     }
 
     @FXML fun reload(event: ActionEvent) {
@@ -359,7 +367,20 @@ import kotlin.reflect.KClass
     }
 
     @FXML fun save(event: ActionEvent) {
+        openBook?.let { book ->
+            if (book.path == null) {
+                book.path = FileChooser()
+                    .let {
+                        it.initialDirectory = (Application.openBookPath.load()?:Paths.get(System.getProperty("user.home"))).toFile()
+                        it.extensionFilters.add(ExtensionFilter(Application.messages["books"], "*.book.xml"))
+                        it.showSaveDialog(stage)?.toPath()
+                    }
+            }
 
+            book.path?.let {
+                bookCase.saveBook(book, it)
+            }
+        }
     }
 
     @FXML fun toggleStayOnTop(event: ActionEvent) {

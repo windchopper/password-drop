@@ -1,10 +1,10 @@
 package com.github.windchopper.tools.password.drop.book
 
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.xml.bind.JAXBContext
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
-import javax.enterprise.context.ApplicationScoped
-import javax.xml.bind.JAXBContext
 
 @ApplicationScoped class BookCase {
 
