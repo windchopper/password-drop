@@ -1,7 +1,10 @@
+@file:Suppress("NestedLambdaShadowedImplicitParameter")
+
 package com.github.windchopper.tools.password.drop.book
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.xml.bind.JAXBContext
+import jakarta.xml.bind.Marshaller
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
@@ -20,16 +23,14 @@ import java.nio.file.StandardCopyOption
     fun saveBook(book: Book, bookPath: Path) {
         val temporaryBookPath = Files.createTempFile("password-drop-book-", "")
 
-        try {
-            Files.newBufferedWriter(temporaryBookPath).use {
-                bindingContext.createMarshaller().marshal(book, it)
-            }
-
-            book.path = Files.move(temporaryBookPath, bookPath,
-                StandardCopyOption.REPLACE_EXISTING)
-        } finally {
-            Files.delete(temporaryBookPath)
+        Files.newBufferedWriter(temporaryBookPath).use {
+            bindingContext.createMarshaller()
+                .also { it.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true) }
+                .marshal(book, it)
         }
+
+        book.path = Files.move(temporaryBookPath, bookPath,
+            StandardCopyOption.REPLACE_EXISTING)
     }
 
 }

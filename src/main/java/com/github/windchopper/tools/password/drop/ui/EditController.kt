@@ -1,3 +1,5 @@
+@file:Suppress("unused", "UNUSED_ANONYMOUS_PARAMETER")
+
 package com.github.windchopper.tools.password.drop.ui
 
 import com.github.windchopper.common.fx.cdi.form.Form
@@ -16,14 +18,12 @@ import javafx.beans.binding.Bindings
 import javafx.beans.property.adapter.JavaBeanStringPropertyBuilder
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
-import javafx.geometry.Dimension2D
 import javafx.scene.Parent
 import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.control.TextField
 import javafx.scene.layout.GridPane
 import javafx.stage.Modality
-import javafx.stage.Screen
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import java.util.concurrent.Callable
@@ -47,7 +47,7 @@ import java.util.concurrent.Callable
 
         bind(parameters["bookPart"] as BookPart)
 
-        rootPane.prefWidth = stage.screen().visualBounds.width / 4;
+        rootPane.prefWidth = stage.screen().visualBounds.width / 4
 
         nameField.textProperty().addListener { property, oldValue, newValue ->
             treeUpdateRequestEvent.fire(TreeUpdateRequest())

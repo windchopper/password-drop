@@ -1,3 +1,5 @@
+@file:Suppress("unused", "UNUSED_PARAMETER")
+
 package com.github.windchopper.tools.password.drop.book
 
 import com.github.windchopper.tools.password.drop.Application
@@ -9,10 +11,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter
 import java.nio.file.Path
 import java.util.*
 
-abstract class BookPart {
+@XmlAccessorType(XmlAccessType.FIELD) abstract class BookPart {
 
-    @XmlAttribute
-    var name: String? = null
+    @XmlAttribute @JvmField var name: String? = null
     abstract val type: String?
 
     override fun toString(): String {
@@ -31,7 +32,7 @@ abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPa
 
     @XmlTransient override val type: String? = Application.messages["page.type"]
 
-    @XmlElement(name = "paragraph") var paragraphs: MutableList<Paragraph> = ArrayList()
+    @XmlElement(name = "paragraph") @JvmField var paragraphs: MutableList<Paragraph> = ArrayList()
 
     fun newParagraph(): Paragraph {
         return Paragraph()
@@ -52,7 +53,7 @@ abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPa
 
     @XmlTransient override val type: String? = Application.messages["paragraph.type"]
 
-    @XmlElement(name = "word") var phrases: MutableList<Phrase> = ArrayList()
+    @XmlElement(name = "word") @JvmField var phrases: MutableList<Phrase> = ArrayList()
 
     @Suppress("unused", "UNUSED_PARAMETER") fun afterUnmarshal(unmarshaller: Unmarshaller, parent: Any) {
         this.parent = parent as Page
@@ -79,7 +80,7 @@ abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPa
 
     @XmlTransient override val type: String? = Application.messages["phrase.type"]
 
-    @XmlValue var text: String? = null
+    @XmlElement var text: String? = null
         get() = field?.let {
             return field
                 ?.let { text ->
@@ -105,18 +106,18 @@ abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPa
                 }
         }
 
-    @Suppress("unused", "UNUSED_PARAMETER") fun afterUnmarshal(unmarshaller: Unmarshaller, parent: Any) {
+    fun afterUnmarshal(unmarshaller: Unmarshaller, parent: Any) {
         this.parent = parent as Paragraph
     }
 
 }
 
-@XmlType @XmlAccessorType(XmlAccessType.FIELD) open class Book: BookPart() {
+@XmlType @XmlRootElement @XmlAccessorType(XmlAccessType.FIELD) open class Book: BookPart() {
 
     @XmlTransient override val type: String? = Application.messages["book.type"]
 
-    @XmlAttribute(name = "salt") @XmlJavaTypeAdapter(SaltAdapter::class) var salt: Salt? = null
-    @XmlElement(name = "page") var pages: MutableList<Page> = ArrayList()
+    @XmlAttribute(name = "salt") @XmlJavaTypeAdapter(SaltAdapter::class) @JvmField var salt: Salt? = null
+    @XmlElement(name = "page") @JvmField var pages: MutableList<Page> = ArrayList()
 
     @XmlTransient var path: Path? = null
     @XmlTransient var cryptoEngine: CryptoEngine? = null

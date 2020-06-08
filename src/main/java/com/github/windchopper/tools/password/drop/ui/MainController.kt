@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_ANONYMOUS_PARAMETER", "unused")
+
 package com.github.windchopper.tools.password.drop.ui
 
 import com.github.windchopper.common.fx.cdi.form.Form
@@ -127,9 +129,11 @@ import kotlin.reflect.KClass
                                 }
 
                             dragBoard.dragView = WritableImage(textBounds.width.toInt(), textBounds.height.toInt())
-                                .also { Scene(label)
-                                    .also { it.fill = Color.TRANSPARENT }
-                                    .snapshot(it) }
+                                .also { image ->
+                                    Scene(label)
+                                        .also { it.fill = Color.TRANSPARENT }
+                                        .snapshot(image)
+                                }
 
                             event.consume()
                         }
@@ -384,7 +388,7 @@ import kotlin.reflect.KClass
     }
 
     @FXML fun toggleStayOnTop(event: ActionEvent) {
-        stage.isAlwaysOnTop = stayOnTopMenuItem.isSelected;
+        stage.isAlwaysOnTop = stayOnTopMenuItem.isSelected
         Application.stayOnTop.save(stayOnTopMenuItem.isSelected)
     }
 
