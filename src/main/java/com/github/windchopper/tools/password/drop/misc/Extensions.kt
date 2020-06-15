@@ -105,6 +105,6 @@ fun Window.screen(): Screen {
         ?:Screen.getPrimary()
 }
 
-fun Insets(top: Double = 0.0, right: Double = 0.0, bottom: Double = 0.0, left: Double = 0.0): Insets {
+fun newInsets(top: Double = 0.0, right: Double = 0.0, bottom: Double = 0.0, left: Double = 0.0): Insets {
     return Insets(top, right, bottom, left)
 }

@@ -67,7 +67,7 @@ class PasswordAlert(newBook: Boolean): Alert(AlertType.NONE) {
             }
 
             val passwordLabel = Label(Application.messages["main.password"]).also {
-                setMargin(it, Insets(right = 8.0))
+                setMargin(it, newInsets(right = 8.0))
                 it.labelFor = passwordField
             }
 
