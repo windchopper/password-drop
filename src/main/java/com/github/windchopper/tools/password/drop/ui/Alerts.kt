@@ -53,11 +53,8 @@ class PasswordAlert(newBook: Boolean): Alert(AlertType.NONE) {
     init {
         graphic = ImageView(Image("/com/github/windchopper/tools/password/drop/images/lock_48.png"))
         title = Application.messages["main.password.enter"]
-        headerText = (if (newBook) Application.messages["main.password.new"] else Application.messages["main.password.opened"])
-
-        Collections.addAll(buttonTypes,
-            ButtonType.OK,
-            ButtonType.CANCEL)
+        headerText = if (newBook) Application.messages["main.password.new"] else Application.messages["main.password.opened"]
+        buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
 
         with(dialogPane) {
             val passwordField = PasswordField().also {
