@@ -15,6 +15,7 @@ import jakarta.inject.Inject
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.binding.BooleanBinding
+import javafx.beans.property.StringProperty
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.geometry.Dimension2D
@@ -211,24 +212,16 @@ import kotlin.reflect.KClass
                 return
             }
 
-            var passwordAlert: PasswordAlert? = null
-
-            val alertChoice = runWithFxThread {
-                passwordAlert = PasswordAlert(book.path == null)
-                prepareAlert(passwordAlert!!, Modality.APPLICATION_MODAL, stage.screen())
-                    .showAndWait()
+            val (alertChoice, passwordProperty) = runWithFxThread {
+                val passwordAlert = prepareAlert(PasswordAlert(book.path == null), Modality.APPLICATION_MODAL)
+                Pair(passwordAlert.showAndWait(), passwordAlert.passwordProperty)
             }
 
             alertChoice
                 .filter { it == ButtonType.OK }
                 .ifPresent {
-                    if (book.salt == null) {
-                        book.salt = Salt()
-                    }
-
-                    book.cryptoEngine = CryptoEngine(
-                        passwordAlert!!.passwordProperty.get(),
-                        book.salt!!)
+                    book.cryptoEngine = CryptoEngine(passwordProperty.get(), book.salt?:Salt()
+                        .also { book.salt = it })
                 }
         }
     }

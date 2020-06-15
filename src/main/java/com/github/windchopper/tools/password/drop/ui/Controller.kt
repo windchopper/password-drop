@@ -25,7 +25,7 @@ abstract class Controller: StageFormController() {
                 }
     }
 
-    open fun prepareAlert(alert: Alert, modality: Modality? = Modality.WINDOW_MODAL, centerOnScreen: Screen? = stage.screen()): Alert {
+    open fun <A: Alert> prepareAlert(alert: A, modality: Modality? = Modality.WINDOW_MODAL, centerOnScreen: Screen? = stage.screen()): A {
         return with (alert) {
             initModality(modality)
             initOwner(stage)
