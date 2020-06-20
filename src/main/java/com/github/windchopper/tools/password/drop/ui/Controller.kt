@@ -5,10 +5,7 @@ import com.github.windchopper.tools.password.drop.misc.screen
 import javafx.scene.Parent
 import javafx.scene.control.Alert
 import javafx.scene.image.Image
-import javafx.stage.Modality
-import javafx.stage.Screen
-import javafx.stage.Stage
-import javafx.stage.WindowEvent
+import javafx.stage.*
 
 abstract class Controller: StageFormController() {
 
@@ -44,6 +41,14 @@ abstract class Controller: StageFormController() {
             }
 
             this
+        }
+    }
+
+    open fun prepareChildStage(childStage: Stage = Stage(), modality: Modality = Modality.NONE, style: StageStyle = StageStyle.UNIFIED): Stage {
+        return childStage.also {
+            it.initModality(modality)
+            it.initStyle(style)
+            it.initOwner(stage)
         }
     }
 

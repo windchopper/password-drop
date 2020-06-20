@@ -10,6 +10,7 @@ import javafx.stage.Screen
 import javafx.stage.Window
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.security.GeneralSecurityException
 
 fun String.trimToNull(): String? = with (trim()) {
     return if (length == 0) null else this
@@ -47,9 +48,20 @@ fun String.right(maxLength: Int, ellipsis: Boolean? = false): String = if (lengt
     this
 }
 
-fun <T> T.display(controller: Controller) where T: Throwable = Platform.runLater {
+fun <T: Throwable> T.display(controller: Controller) = Platform.runLater {
     controller.prepareAlert(ErrorAlert(this), Modality.APPLICATION_MODAL)
         .show()
+}
+
+fun <T: Throwable> T.rootCauseMessage(maxLength: Int = Int.MAX_VALUE, ellipsis: Boolean = false): String? {
+    var ptr: Throwable = this
+
+    while (ptr !is GeneralSecurityException && ptr.cause != null) {
+        ptr = ptr.cause!!
+    }
+
+    return ptr.localizedMessage?.trimToNull()?.left(maxLength, ellipsis)
+        ?:ptr::class.qualifiedName?.right(maxLength, ellipsis)
 }
 
 fun Controller.exceptionally(runnable: () -> Unit) = try {

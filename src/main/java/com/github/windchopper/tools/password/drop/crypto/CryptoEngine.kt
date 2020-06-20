@@ -1,5 +1,6 @@
 package com.github.windchopper.tools.password.drop.crypto
 
+import java.security.GeneralSecurityException
 import java.security.Key
 import java.security.spec.AlgorithmParameterSpec
 import java.util.*
@@ -19,12 +20,12 @@ class CryptoEngine(private val password: String, private val salt: Salt) {
         salt.passwordBasedEncryptionParameters()
     }
 
-    fun encrypt(string: String): String {
+    @Throws(GeneralSecurityException::class) fun encrypt(string: String): String {
         cipher.init(Cipher.ENCRYPT_MODE, key, parameters)
         return Base64.getEncoder().encodeToString(cipher.doFinal(string.toByteArray()))
     }
 
-    fun decrypt(string: String): String {
+    @Throws(GeneralSecurityException::class) fun decrypt(string: String): String {
         cipher.init(Cipher.DECRYPT_MODE, key, parameters)
         return String(cipher.doFinal(Base64.getDecoder().decode(string)))
     }

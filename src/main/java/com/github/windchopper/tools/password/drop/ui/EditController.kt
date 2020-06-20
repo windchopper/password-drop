@@ -24,7 +24,6 @@ import javafx.scene.control.Label
 import javafx.scene.control.TextField
 import javafx.scene.layout.GridPane
 import javafx.stage.Modality
-import javafx.stage.Stage
 import javafx.stage.StageStyle
 import java.util.concurrent.Callable
 
@@ -83,32 +82,42 @@ import java.util.concurrent.Callable
         textField.isVisible = true
 
         with (JavaBeanStringPropertyBuilder.create().bean(bookPart).name("text").build()) {
-            savedText = get()
-            textField.textProperty().bindBidirectionalAndRemember(this)
+            textField.isDisable = true
+            exceptionally {
+                savedText = get()
+                textField.textProperty().bindBidirectionalAndRemember(this)
+                textField.isDisable = false
+            }
         }
     }
 
     fun editFired(@Observes event: TreeEdit<BookPart>) {
-        if (stage != null) if (stage.isShowing) stage.toFront() else stage.show() else
+        if (stage != null) if (stage.isShowing) {
+            unbind()
+            bind(event.item.value)
+            stage.toFront()
+        } else {
+            unbind()
+            bind(event.item.value)
+            stage.show()
+        } else {
             formLoadEvent.fire(StageFormLoad(ClassPathResource(Application.FXML_EDIT), mutableMapOf("bookPart" to event.item.value)) {
-                Stage()
-                    .also {
-                        it.initStyle(StageStyle.UTILITY)
-                        it.initModality(Modality.NONE)
-                        it.initOwner(stage)
-                        it.isResizable = false
-                    }
+                event.invokerController.prepareChildStage(modality = Modality.NONE, style = StageStyle.UTILITY).also {
+                    it.isResizable = false
+                }
             })
+        }
     }
 
     fun selectionFired(@Observes event: TreeSelection<BookPart>) {
         if (stage != null && stage.isShowing) {
-            stage.toFront()
             unbind()
-            event.newSelection
-                ?.let {
-                    bind(it.value)
-                }
+            if (event.newSelection != null) {
+                bind(event.newSelection.value)
+                stage.toFront()
+            } else {
+                stage.hide()
+            }
         }
     }
 

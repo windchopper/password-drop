@@ -13,9 +13,9 @@ import jakarta.enterprise.event.Event
 import jakarta.enterprise.event.Observes
 import jakarta.inject.Inject
 import javafx.application.Platform
-import javafx.beans.binding.Bindings
+import javafx.beans.binding.Bindings.createBooleanBinding
+import javafx.beans.binding.Bindings.not
 import javafx.beans.binding.BooleanBinding
-import javafx.beans.property.StringProperty
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.geometry.Dimension2D
@@ -42,6 +42,7 @@ import javafx.stage.Screen
 import javafx.stage.StageStyle
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.net.URL
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -97,7 +98,7 @@ import kotlin.reflect.KClass
             with (selectionModel) {
                 selectionMode = SelectionMode.SINGLE
                 selectedItemProperty().addListener { selectedItemProperty, oldSelection, newSelection ->
-                    treeSelectionEvent.fire(TreeSelection(oldSelection, newSelection))
+                    treeSelectionEvent.fire(TreeSelection(this@MainController, oldSelection, newSelection))
                 }
             }
 
@@ -171,35 +172,37 @@ import kotlin.reflect.KClass
         }
     }
 
-    fun fillBookViewFromBook() {
+    suspend fun fillBookViewFromBook() {
         openBook?.let { loadedBook ->
-            reloadBookMenuItem.isDisable = loadedBook.path == null
+            runWithFxThread {
+                reloadBookMenuItem.isDisable = loadedBook.path == null
 
-            val rootItem = TreeItem<BookPart>(openBook)
-                .also {
-                    bookView.root = it
-                    it.isExpanded = true
-                }
-
-            loadedBook.pages.forEach { page ->
-                val pageItem = TreeItem<BookPart>(page)
+                val rootItem = TreeItem<BookPart>(openBook)
                     .also {
-                        rootItem.children.add(it)
+                        bookView.root = it
                         it.isExpanded = true
                     }
 
-                page.paragraphs.forEach { paragraph ->
-                    val paragraphItem = TreeItem<BookPart>(paragraph)
+                loadedBook.pages.forEach { page ->
+                    val pageItem = TreeItem<BookPart>(page)
                         .also {
-                            pageItem.children.add(it)
+                            rootItem.children.add(it)
                             it.isExpanded = true
                         }
 
-                    paragraph.phrases.forEach { word ->
-                        TreeItem<BookPart>(word)
+                    page.paragraphs.forEach { paragraph ->
+                        val paragraphItem = TreeItem<BookPart>(paragraph)
                             .also {
-                                paragraphItem.children.add(it)
+                                pageItem.children.add(it)
+                                it.isExpanded = true
                             }
+
+                        paragraph.phrases.forEach { word ->
+                            TreeItem<BookPart>(word)
+                                .also {
+                                    paragraphItem.children.add(it)
+                                }
+                        }
                     }
                 }
             }
@@ -229,7 +232,7 @@ import kotlin.reflect.KClass
     fun addMenuItemBindings() {
         with (bookView.selectionModel) {
             fun selectedItemIs(type: KClass<*>): BooleanBinding {
-                return Bindings.createBooleanBinding(
+                return createBooleanBinding(
                     Callable {
                         selectedItem?.value
                             ?.let { type.isInstance(it) }
@@ -242,7 +245,7 @@ import kotlin.reflect.KClass
             newParagraphMenuItem.disableProperty().bind(selectedItemProperty().isNull.or(selectedItemIs(Page::class).not()))
             newPhraseMenuItem.disableProperty().bind(selectedItemProperty().isNull.or(selectedItemIs(Paragraph::class).not()))
             editMenuItem.disableProperty().bind(selectedItemProperty().isNull)
-            deleteMenuItem.disableProperty().bind(selectedItemProperty().isNull)
+            deleteMenuItem.disableProperty().bind(selectedItemProperty().isNull.and(not(selectedItemIs(InternalBookPart::class))))
         }
     }
 
@@ -326,19 +329,24 @@ import kotlin.reflect.KClass
     }
 
     @FXML fun edit(event: ActionEvent) {
-        treeEditEvent.fire(TreeEdit(bookView.selectionModel.selectedItem))
+        treeEditEvent.fire(TreeEdit(this, bookView.selectionModel.selectedItem))
     }
 
     @FXML fun delete(event: ActionEvent) {
-        exceptionally {
-            throw RuntimeException()
+        with (bookView.selectionModel.selectedItem) {
+            value.let {
+                if (it is InternalBookPart<*>) {
+                    parent.children.remove(this)
+                    it.removeFromParent()
+                }
+            }
         }
     }
 
     fun prepareFileChooser(): FileChooser {
         return FileChooser()
             .also {
-                it.initialDirectory = (Application.openBookPath.load()?:Paths.get(System.getProperty("user.home"))).toFile()
+                it.initialDirectory = (Application.openBookPath.load()?.parent?:Paths.get(System.getProperty("user.home"))).toFile()
                 it.extensionFilters.add(ExtensionFilter(Application.messages["books"], "*.book.xml"))
             }
     }
@@ -354,7 +362,10 @@ import kotlin.reflect.KClass
         GlobalScope.launch {
             exceptionally {
                 openBook = bookCase.readBook(path)
-                fillBookViewFromBook()
+                runBlocking {
+                    fillBookViewFromBook()
+                    prepareEncryptEngine()
+                }
             }
         }
     }
@@ -376,6 +387,7 @@ import kotlin.reflect.KClass
 
             book.path?.let {
                 bookCase.saveBook(book, it)
+                Application.openBookPath.save(it)
             }
         }
     }

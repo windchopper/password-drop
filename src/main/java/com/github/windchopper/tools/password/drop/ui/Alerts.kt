@@ -1,9 +1,12 @@
-@file:Suppress("NestedLambdaShadowedImplicitParameter")
+@file:Suppress("NestedLambdaShadowedImplicitParameter", "UNUSED_ANONYMOUS_PARAMETER")
 
 package com.github.windchopper.tools.password.drop.ui
 
 import com.github.windchopper.tools.password.drop.Application
-import com.github.windchopper.tools.password.drop.misc.*
+import com.github.windchopper.tools.password.drop.misc.isNotBlank
+import com.github.windchopper.tools.password.drop.misc.newInsets
+import com.github.windchopper.tools.password.drop.misc.rootCauseMessage
+import com.github.windchopper.tools.password.drop.misc.screen
 import javafx.beans.binding.Bindings.createBooleanBinding
 import javafx.beans.binding.Bindings.not
 import javafx.beans.property.SimpleStringProperty
@@ -17,30 +20,32 @@ import javafx.scene.layout.GridPane.setMargin
 import javafx.scene.layout.Priority
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.*
 import java.util.concurrent.Callable
 
 class ErrorAlert(exception: Throwable): Alert(AlertType.ERROR) {
 
     init {
         title = Application.messages["error.title"]
-        headerText = exception.localizedMessage?.trimToNull()?.left(50, true)
-            ?:exception::class.qualifiedName?.right(50, true)
+        headerText = exception.rootCauseMessage(500, true)
         contentText = Application.messages["error.description"]
-        dialogPane.expandableContent = GridPane().also { pane ->
-            pane.children.add(TextArea().also { textArea ->
-                textArea.isEditable = false
-                textArea.prefColumnCount = 10
-                textArea.prefRowCount = 10
-                setHgrow(textArea, Priority.ALWAYS)
-                textArea.text = StringWriter().use {
-                    PrintWriter(it).use {
-                        exception.printStackTrace(writer = it)
-                    }
 
-                    it.toString()
-                }
-            })
+        with (dialogPane) {
+            maxWidth = scene.window.screen().visualBounds.width / 3
+            expandableContent = GridPane().also { pane ->
+                pane.children.add(TextArea().also { textArea ->
+                    textArea.isEditable = false
+                    textArea.prefColumnCount = 10
+                    textArea.prefRowCount = 10
+                    setHgrow(textArea, Priority.ALWAYS)
+                    textArea.text = StringWriter().use {
+                        PrintWriter(it).use {
+                            exception.printStackTrace(writer = it)
+                        }
+
+                        it.toString()
+                    }
+                })
+            }
         }
     }
 

@@ -26,6 +26,8 @@ abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPa
 
     @XmlTransient var parent: ParentType? = null
 
+    abstract fun removeFromParent()
+
 }
 
 @XmlType @XmlAccessorType(XmlAccessType.FIELD) class Page: InternalBookPart<Book>() {
@@ -47,6 +49,10 @@ abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPa
         this.parent = parent as Book
     }
 
+    override fun removeFromParent() {
+        parent?.pages?.remove(this)
+    }
+
 }
 
 @XmlType @XmlAccessorType(XmlAccessType.FIELD) class Paragraph: InternalBookPart<Page>() {
@@ -66,6 +72,10 @@ abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPa
                 it.name = Application.messages["phrase.unnamed"]
                 it.parent = this
             }
+    }
+
+    override fun removeFromParent() {
+        parent?.paragraphs?.remove(this)
     }
 
 }
@@ -108,6 +118,10 @@ abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPa
 
     fun afterUnmarshal(unmarshaller: Unmarshaller, parent: Any) {
         this.parent = parent as Paragraph
+    }
+
+    override fun removeFromParent() {
+        parent?.phrases?.remove(this)
     }
 
 }
