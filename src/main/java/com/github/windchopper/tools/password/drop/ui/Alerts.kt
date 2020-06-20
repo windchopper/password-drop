@@ -30,7 +30,7 @@ class ErrorAlert(exception: Throwable): Alert(AlertType.ERROR) {
         contentText = Application.messages["error.description"]
 
         with (dialogPane) {
-            maxWidth = scene.window.screen().visualBounds.width / 3
+            maxWidth = scene.window.screen().visualBounds.width / 4
             expandableContent = GridPane().also { pane ->
                 pane.children.add(TextArea().also { textArea ->
                     textArea.isEditable = false
@@ -73,7 +73,7 @@ class PasswordAlert(newBook: Boolean): Alert(AlertType.NONE) {
                 it.labelFor = passwordField
             }
 
-            maxWidth = dialogPane.scene.window.screen().visualBounds.width / 4
+            maxWidth = scene.window.screen().visualBounds.width / 4
 
             scene.window.setOnShown {
                 passwordField.requestFocus()
