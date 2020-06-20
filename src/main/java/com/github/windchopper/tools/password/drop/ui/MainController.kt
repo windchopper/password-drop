@@ -299,8 +299,6 @@ import kotlin.reflect.KClass
                     item.children.add(TreeItem(it))
                 }
             }
-
-            refresh()
         }
     }
 
@@ -311,8 +309,6 @@ import kotlin.reflect.KClass
                     item.children.add(TreeItem(it))
                 }
             }
-
-            refresh()
         }
     }
 
@@ -323,8 +319,6 @@ import kotlin.reflect.KClass
                     item.children.add(TreeItem(it))
                 }
             }
-
-            refresh()
         }
     }
 
