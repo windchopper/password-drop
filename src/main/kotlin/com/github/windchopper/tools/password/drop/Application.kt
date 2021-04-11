@@ -63,3 +63,7 @@ class Application: javafx.application.Application() {
     }
 
 }
+
+fun main(vararg args: String) {
+    javafx.application.Application.launch(Application::class.java, *args)
+}

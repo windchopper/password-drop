@@ -147,13 +147,10 @@ import kotlin.reflect.KClass
         addTrayIcon(stage.icons)
 
         GlobalScope.launch {
-            val bookPath = Application.openBookPath.load()
-
-            openBook = if (bookPath != null) {
-                bookCase.readBook(bookPath.value)
-            } else {
-                buildNewBook()
-            }
+            openBook = Application.openBookPath.load()
+                ?.value
+                ?.let(bookCase::readBook)
+                ?:buildNewBook()
 
             fillBookViewFromBook()
             prepareEncryptEngine()
