@@ -8,18 +8,22 @@
     <version>1.1</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>13</java.version>
-        <kotlin.version>1.3.72</kotlin.version>
-        <kotlin.compiler.apiVersion>1.3</kotlin.compiler.apiVersion>
-        <kotlin.compiler.languageVersion>1.3</kotlin.compiler.languageVersion>
-        <kotlin.ext.version>1.3.7</kotlin.ext.version>
-        <javafx.version>14.0.1</javafx.version>
+        <java.version>15</java.version>
+        <kotlin.version>1.4.32</kotlin.version>
+        <kotlin.artifacts>kotlin-stdlib, kotlin-stdlib-common, annotations, kotlin-reflect</kotlin.artifacts>
+        <kotlin.ext.version>1.4.3</kotlin.ext.version>
+        <kotlin.ext.artifacts>kotlinx-coroutines-core, kotlinx-coroutines-core-jvm</kotlin.ext.artifacts>
+        <javafx.version>16</javafx.version>
+        <javafx.artifacts>javafx-base, javafx-controls, javafx-fxml, javafx-graphics</javafx.artifacts>
+        <jandex.version>2.2.3.Final</jandex.version>
+        <weld.version>4.0.1.Final</weld.version>
+        <jaxb.version>3.0.0</jaxb.version>
         <common.version>1.1</common.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
@@ -34,33 +38,95 @@
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
+            <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>linux</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>linux</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>linux</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>linux</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>mac</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>mac</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>mac</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>mac</classifier>
         </dependency>
         <dependency>
             <groupId>org.jboss</groupId>
             <artifactId>jandex</artifactId>
-            <version>2.1.1.Final</version>
+            <version>${jandex.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>3.0.0-M4</version>
+            <version>${jaxb.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.sun.activation</groupId>
-            <artifactId>jakarta.activation</artifactId>
-            <version>2.0.0-RC3</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.sun.activation</groupId>-->
+<!--            <artifactId>jakarta.activation</artifactId>-->
+<!--            <version>2.0.0-RC3</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.jboss.weld.se</groupId>
             <artifactId>weld-se-core</artifactId>
-            <version>4.0.0.Alpha2</version>
+            <version>${weld.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.windchopper</groupId>
@@ -95,10 +161,12 @@
         </dependency>
     </dependencies>
     <build>
+        <sourceDirectory>src/main/kotlin</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
+                <!--suppress DifferentKotlinMavenVersion -->
                 <version>${kotlin.version}</version>
                 <dependencies>
                     <dependency>
@@ -113,13 +181,6 @@
                         <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-compile</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -146,25 +207,7 @@
                         <id>default-testCompile</id>
                         <phase>none</phase>
                     </execution>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>testCompile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
                 </executions>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -172,12 +215,91 @@
                 <version>2.8</version>
                 <executions>
                     <execution>
+                        <id>copy-javafx</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib/javafx</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <includeArtifactIds>${javafx.artifacts}</includeArtifactIds>
+                            <excludeClassifiers>win, linux, mac</excludeClassifiers>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-javafx-win</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib/javafx/win</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <includeArtifactIds>${javafx.artifacts}</includeArtifactIds>
+                            <includeClassifiers>win</includeClassifiers>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-javafx-linux</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib/javafx/linux</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <includeArtifactIds>${javafx.artifacts}</includeArtifactIds>
+                            <includeClassifiers>linux</includeClassifiers>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-javafx-mac</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib/javafx/mac</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <includeArtifactIds>${javafx.artifacts}</includeArtifactIds>
+                            <includeClassifiers>mac</includeClassifiers>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-kotlin</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib/kotlin</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <includeArtifactIds>${kotlin.artifacts}</includeArtifactIds>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-kotlin-ext</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib/kotlin/ext</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <includeArtifactIds>${kotlin.ext.artifacts}</includeArtifactIds>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-rest</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <excludeArtifactIds>${javafx.artifacts}, ${kotlin.artifacts}, ${kotlin.ext.artifacts}</excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>

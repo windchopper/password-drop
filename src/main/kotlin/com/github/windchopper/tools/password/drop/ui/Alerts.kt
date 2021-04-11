@@ -20,7 +20,6 @@ import javafx.scene.layout.GridPane.setMargin
 import javafx.scene.layout.Priority
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.concurrent.Callable
 
 class ErrorAlert(exception: Throwable): Alert(AlertType.ERROR) {
 
@@ -85,7 +84,7 @@ class PasswordAlert(newBook: Boolean): Alert(AlertType.NONE) {
             }
 
             lookupButton(ButtonType.OK).disableProperty().bind(not(createBooleanBinding(
-                Callable { passwordField.text?.isNotBlank()?:false },
+                { passwordField.text?.isNotBlank()?:false },
                 passwordField.textProperty())))
         }
     }

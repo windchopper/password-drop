@@ -2,21 +2,22 @@ package com.github.windchopper.tools.password.drop
 
 import com.github.windchopper.common.fx.cdi.ResourceBundleLoad
 import com.github.windchopper.common.fx.cdi.form.StageFormLoad
-import com.github.windchopper.common.preferences.PlatformPreferencesStorage
-import com.github.windchopper.common.preferences.PreferencesEntry
+import com.github.windchopper.common.preferences.PreferencesEntryFlatType
 import com.github.windchopper.common.preferences.PreferencesStorage
-import com.github.windchopper.common.preferences.types.FlatType
+import com.github.windchopper.common.preferences.entries.BufferedEntry
+import com.github.windchopper.common.preferences.entries.StandardEntry
+import com.github.windchopper.common.preferences.storages.PlatformStorage
 import com.github.windchopper.common.util.ClassPathResource
 import com.github.windchopper.tools.password.drop.misc.Exit
 import javafx.application.Platform
 import javafx.stage.Stage
 import org.jboss.weld.environment.se.Weld
 import org.jboss.weld.environment.se.WeldContainer
+import java.nio.file.FileSystem
+import java.nio.file.FileSystems
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.time.Duration
 import java.util.*
-import java.util.function.Function
 import java.util.function.Supplier
 import java.util.prefs.Preferences
 
@@ -29,15 +30,13 @@ class Application: javafx.application.Application() {
 
         private val resourceBundle = ResourceBundle.getBundle("com.github.windchopper.tools.password.drop.i18n.messages")
 
-        val messages = resourceBundle.keySet()
-            .map { it to resourceBundle.getString(it) }
-            .toMap()
+        val messages = resourceBundle.keySet().associateWith(resourceBundle::getString)
 
         private val defaultBufferLifetime = Duration.ofMinutes(1)
-        private val preferencesStorage: PreferencesStorage = PlatformPreferencesStorage(Preferences.userRoot().node("com/github/windchopper/tools/password/drop"))
+        private val preferencesStorage: PreferencesStorage = PlatformStorage(Preferences.userRoot().node("com/github/windchopper/tools/password/drop"))
 
-        val openBookPath = PreferencesEntry<Path>(preferencesStorage, "openBookPath", FlatType(Function { Paths.get(it) }, Function { it.toString() }), defaultBufferLifetime)
-        val stayOnTop = PreferencesEntry<Boolean>(preferencesStorage, "stayOnTop", FlatType(Function { it?.toBoolean()?:false }, Function { it.toString() }), defaultBufferLifetime)
+        val openBookPath = BufferedEntry(defaultBufferLifetime, StandardEntry(preferencesStorage, "openBookPath", PreferencesEntryFlatType({ Path.of(it) }, Path::toString)))
+        val stayOnTop = BufferedEntry(defaultBufferLifetime, StandardEntry(preferencesStorage, "stayOnTop", PreferencesEntryFlatType(String::toBoolean, Boolean::toString)))
 
     }
 
@@ -54,7 +53,7 @@ class Application: javafx.application.Application() {
     override fun start(primaryStage: Stage) {
         with (weldContainer.beanManager) {
             fireEvent(ResourceBundleLoad(resourceBundle))
-            fireEvent(StageFormLoad(ClassPathResource(FXML_MAIN), Supplier { primaryStage }))
+            fireEvent(StageFormLoad(ClassPathResource(FXML_MAIN), { primaryStage }))
         }
     }
 

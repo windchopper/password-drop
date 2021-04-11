@@ -46,7 +46,6 @@ import kotlinx.coroutines.runBlocking
 import java.net.URL
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.concurrent.Callable
 import javax.imageio.ImageIO
 import kotlin.math.abs
 import kotlin.reflect.KClass
@@ -82,7 +81,7 @@ import kotlin.reflect.KClass
             initStyle(StageStyle.UTILITY)
             title = Application.messages["main.head"]
 
-            isAlwaysOnTop = Application.stayOnTop.load()?:false
+            isAlwaysOnTop = Application.stayOnTop.load().value?:false
             stayOnTopMenuItem.isSelected = isAlwaysOnTop
 
             setOnCloseRequest {
@@ -151,7 +150,7 @@ import kotlin.reflect.KClass
             val bookPath = Application.openBookPath.load()
 
             openBook = if (bookPath != null) {
-                bookCase.readBook(bookPath)
+                bookCase.readBook(bookPath.value)
             } else {
                 buildNewBook()
             }
@@ -233,7 +232,7 @@ import kotlin.reflect.KClass
         with (bookView.selectionModel) {
             fun selectedItemIs(type: KClass<*>): BooleanBinding {
                 return createBooleanBinding(
-                    Callable {
+                    {
                         selectedItem?.value
                             ?.let { type.isInstance(it) }
                             ?:false
@@ -254,7 +253,7 @@ import kotlin.reflect.KClass
             val systemTray = java.awt.SystemTray.getSystemTray()
 
             val trayIconImage = ImageIO.read(URL(
-                images.map { abs(systemTray.trayIconSize.width - it.width) to it.url }.minBy { it.first }
+                images.map { abs(systemTray.trayIconSize.width - it.width) to it.url }.minByOrNull { it.first }
                     !!.second))
 
             trayIcon = java.awt.TrayIcon(trayIconImage, Application.messages["tray.head"])
@@ -340,7 +339,7 @@ import kotlin.reflect.KClass
     fun prepareFileChooser(): FileChooser {
         return FileChooser()
             .also {
-                it.initialDirectory = (Application.openBookPath.load()?.parent?:Paths.get(System.getProperty("user.home"))).toFile()
+                it.initialDirectory = (Application.openBookPath.load().value?.parent?:Paths.get(System.getProperty("user.home"))).toFile()
                 it.extensionFilters.add(ExtensionFilter(Application.messages["books"], "*.book.xml"))
             }
     }
@@ -373,7 +372,7 @@ import kotlin.reflect.KClass
             if (book.path == null) {
                 book.path = FileChooser()
                     .let {
-                        it.initialDirectory = (Application.openBookPath.load()?:Paths.get(System.getProperty("user.home"))).toFile()
+                        it.initialDirectory = (Application.openBookPath.load().value?:Paths.get(System.getProperty("user.home"))).toFile()
                         it.extensionFilters.add(ExtensionFilter(Application.messages["books"], "*.book.xml"))
                         it.showSaveDialog(stage)?.toPath()
                     }

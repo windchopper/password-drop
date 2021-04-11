@@ -25,7 +25,6 @@ import javafx.scene.control.TextField
 import javafx.scene.layout.GridPane
 import javafx.stage.Modality
 import javafx.stage.StageStyle
-import java.util.concurrent.Callable
 
 @ApplicationScoped @Form(Application.FXML_EDIT) class EditController: Controller() {
 
@@ -53,7 +52,7 @@ import java.util.concurrent.Callable
         }
 
         restoreButton.disableProperty().bind(Bindings.createBooleanBinding(
-            Callable { savedName == nameField.text && savedText == textField.text },
+            { savedName == nameField.text && savedText == textField.text },
             nameField.textProperty(),
             textField.textProperty()))
     }
