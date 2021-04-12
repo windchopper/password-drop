@@ -207,7 +207,7 @@ import kotlin.reflect.KClass
 
     suspend fun prepareEncryptEngine() {
         openBook?.let { book ->
-            if (book.path != null && book.salt == null) {
+            if (book.path != null && book.saltRaw == null) {
                 return
             }
 
@@ -219,8 +219,8 @@ import kotlin.reflect.KClass
             alertChoice
                 .filter { it == ButtonType.OK }
                 .ifPresent {
-                    book.cryptoEngine = CryptoEngine(passwordProperty.get(), book.salt?:Salt()
-                        .also { book.salt = it })
+                    book.cryptoEngine = CryptoEngine(passwordProperty.get(), Salt(book.saltRaw)
+                        .also { book.saltRaw = it.saltRaw })
                 }
         }
     }

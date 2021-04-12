@@ -4,10 +4,8 @@ package com.github.windchopper.tools.password.drop.book
 
 import com.github.windchopper.tools.password.drop.Application
 import com.github.windchopper.tools.password.drop.crypto.CryptoEngine
-import com.github.windchopper.tools.password.drop.crypto.Salt
 import jakarta.xml.bind.Unmarshaller
 import jakarta.xml.bind.annotation.*
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter
 import java.nio.file.Path
 import java.util.*
 
@@ -130,7 +128,7 @@ abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPa
 
     @XmlTransient override val type: String? = Application.messages["book.type"]
 
-    @XmlAttribute(name = "salt") @XmlJavaTypeAdapter(SaltAdapter::class) var salt: Salt? = null
+    @XmlAttribute(name = "salt") @XmlSchemaType(name = "base64Binary") var saltRaw: ByteArray? = null
     @XmlElement(name = "page") var pages: MutableList<Page> = ArrayList()
 
     @XmlTransient var path: Path? = null
@@ -149,7 +147,7 @@ abstract class InternalBookPart<ParentType>: BookPart() where ParentType: BookPa
     open fun copy(bookSupplier: () -> Book): Book {
         return bookSupplier.invoke().also { newBook ->
             newBook.name = name
-            newBook.salt = salt
+            newBook.saltRaw = saltRaw
             pages.forEach { page ->
                 newBook.pages.add(Page().also { newPage ->
                     newPage.parent = newBook

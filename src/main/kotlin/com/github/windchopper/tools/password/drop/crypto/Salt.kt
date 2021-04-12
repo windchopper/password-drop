@@ -4,7 +4,7 @@ import java.security.SecureRandom
 import java.util.*
 import javax.crypto.spec.PBEParameterSpec
 
-class Salt(private val saltBytes: ByteArray? = ByteArray(SALT_SIZE).also(SecureRandom()::nextBytes)) {
+class Salt(val saltRaw: ByteArray? = ByteArray(SALT_SIZE).also(SecureRandom()::nextBytes)) {
 
     companion object {
 
@@ -14,11 +14,7 @@ class Salt(private val saltBytes: ByteArray? = ByteArray(SALT_SIZE).also(SecureR
     }
 
     fun passwordBasedEncryptionParameters(): PBEParameterSpec {
-        return PBEParameterSpec(saltBytes, ITERATION_COUNT)
-    }
-
-    fun base64EncodedString(): String {
-        return Base64.getEncoder().encodeToString(saltBytes)
+        return PBEParameterSpec(saltRaw, ITERATION_COUNT)
     }
 
 }
